@@ -5,6 +5,13 @@ float decreaseBy(float value, float percentage)
 	return value*percentage/100;
 }
 
+float abs(float i)
+{
+	if(i>0)
+		return i;
+	return -1*i;
+}
+
 bool inRange(float value1, float value2 , float percentage)
 {
 	float maxval2 = value2 * 0.01 * (100 + percentage);
@@ -141,7 +148,7 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 		output->RL = getOuterWheelTorque(TPS,load,Lslip,turningRadius);	// Outer Wheel - from Outer Wheel torque Map
 		output->RR = getInnerWheelTorque(TPS,load,Rslip,turningRadius);	// Inner Wheel - from Inner Wheel torque Map
 	}
-	else if(data->steeredAngle > 5)
+	else if(data->steeredAngle < -5)
 	{
 
 		output->RR = getOuterWheelTorque(TPS,load,Rslip,turningRadius);	// Outer Wheel - from Outer Wheel torque Map
