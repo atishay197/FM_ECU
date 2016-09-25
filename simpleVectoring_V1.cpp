@@ -9,7 +9,7 @@ using namespace std;
 
 FILE* file = fopen("Sample.csv","r");
 FILE* fcar = fopen("CarData.csv","r");
-FILE* outp = fopen("outputTorque.csv","a");
+FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
 
 
@@ -76,7 +76,9 @@ int main()
 		loggedData* currentData = readnextcsv(buffer);
 		printData(currentData);
 		if(currentData->exists)
+        {
 			torqueVectoring(currentData,carData,outp,wout);	// EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
+        }
 		else
 			break;
 		clock_t e = clock();

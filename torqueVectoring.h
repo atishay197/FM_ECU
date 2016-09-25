@@ -1,4 +1,3 @@
-#include "wheelLoads.h"
 #include "calculations.h"
 
 outputTorque* torqueVectoring(loggedData* data, struct CarData* cData, FILE* outp, FILE* wout)
@@ -8,10 +7,8 @@ outputTorque* torqueVectoring(loggedData* data, struct CarData* cData, FILE* out
 
 	int mode;
 
-	wheelLoad* wLoad = (wheelLoad* )malloc(sizeof(struct WheelLoad));
-	wLoad = calculateWheelLoad(data,cData);
+	wheelLoad* wLoad = calculateWheelLoad(data,cData);
 	writeWheelLoad(wLoad,wout);
-
 	// mode determination
 	if(data->steeredAngle < maxStraightAngle) mode = 1; 		//straight
 	else if(data->steeredAngle > minhairpinAngle) mode = 2;		//hairpin
@@ -21,12 +18,13 @@ outputTorque* torqueVectoring(loggedData* data, struct CarData* cData, FILE* out
 		case 1 :		// straight
 		{
 			outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
-			output = preventSlip(data);
+
+			output = preventSlip(data,cData);
 			// TO DO : 0.9 and 1.1 in terms of % via machine learning algorithm
-			if(output->torqueRL/output->torqueRR < 0.9)
-				output->torqueRR=0.9*output->torqueRL;
-			else if(output->torqueRL/output->torqueRR > 1.1)
-				output->torqueRR=output->torqueRL/1.1;
+			if(output->RL/output->RR < 0.9)
+				output->RR=0.9*output->RL;
+			else if(output->RL/output->RR > 1.1)
+				output->RR=output->RL/1.1;
 			return writeAndReturn(output,outp);
 		}
 		case 2 :		// hairpin

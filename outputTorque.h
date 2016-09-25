@@ -1,17 +1,17 @@
 struct OutputTorque
 {
-	float torqueRL;
-	float torqueRR;
+	float RL;
+	float RR;
 };
 typedef struct OutputTorque outputTorque;
 
 void printoutput(outputTorque* o)
 {
-	printf("Output Torque :: RL : %f :: RR : %f\n",o->torqueRL,o->torqueRL);
+	printf("Output Torque :: RL : %f :: RR : %f\n",o->RL,o->RR);
 }
 
 outputTorque* writeAndReturn(outputTorque* output,FILE* outfile)
 {
-	fprintf(outfile,"%f,%f\n",output->torqueRL,output->torqueRR);
+	fprintf(outfile,"%f,%f\n",output->RL,output->RR);
 	return output;
 }
