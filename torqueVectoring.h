@@ -2,7 +2,7 @@
 
 outputTorque* torqueVectoring(loggedData* data, struct CarData* cData, FILE* outp, FILE* wout)
 {
-	float maxStraightAngle = 5;
+	float maxStraightAngle = 10;
 	float minhairpinAngle = 20;
 
 	int mode;
