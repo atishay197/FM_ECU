@@ -39,7 +39,10 @@ float calculateTurningRadius(float steeredAngle)
  float turn_radius;
  if steeredAngle > 0
    turnradius = (wheel_base/tan((3.1415*steeredAngle)/180));  //tan function from math.h 
- else turnradius = 999999;	
+ else if steeredAngle ==0
+   turnradius = 999999;	
+ else if steeredAngle < 0
+   turnradius = -1*(wheel_base/tan((3.1415*steeredAngle)/180));  //taking radius negative for left and positive for right
  return turnradius;
 }
 
