@@ -32,10 +32,15 @@ float getAvgTPS(struct Throttle t)
 	return ( t.TPS1 + t.TPS2 ) / 2;
 }
 
-//TO DO: Write code for calculation
+
 float calculateTurningRadius(float steeredAngle)
 {
-	return 5;
+ const float wheel_base = 1.540;
+ float turn_radius;
+ if steeredAngle > 0
+   turnradius = (wheel_base/tan((3.1415*steeredAngle)/180));  //tan function from math.h 
+ else turnradius = 999999;	
+ return turnradius;
 }
 
 wheelLoad* returnWeightedLoads(wheelLoad* w[3], float weightage[3])
