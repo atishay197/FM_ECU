@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-
+using namespace std;
 
 bool inRange(float value1, float value2 , float percentage)
 {
@@ -14,6 +14,19 @@ float bringInRange(float value1, float value2, float percentage)
 {
 	return value1>value2?value2*(100+percentage)*0.01:value2*(100-percentage)*0.01;
 }
+
+struct mapKey
+{
+	int a,b,c,d,e;
+	mapKey(int a,int b,int c,int d,int e)
+	{
+		this->a = a;
+		this->b = b;
+		this->c = c;
+		this->d = d;
+		this->e = e;
+	}	
+};
 
 int main()
 {
@@ -30,4 +43,19 @@ int main()
 	printf("bringInRange : %f\n",bringInRange(z,x,10));
 	printf("bringInRange : %f\n",bringInRange(a,x,10));
 	printf("bringInRange : %f\n",bringInRange(b,x,10));
+	float f1[20][20][20][10][10] = {1};
+	float f2[20][20][20][10][10] = {1};
+	// float f3[20][20][20][10][10] = {1};
+	// float f4[20][20][20][10][10] = {1};
+	// float f5[20][20][20][10][10] = {1};
+	// float f6[20][20][20][10][10] = {1};
+	// float f7[20][20][20][10][10] = {1};
+	// float f8[20][20][20][10][10] = {1};
+	// float f9[20][20][20][10][10] = {1};
+	// float f0[20][20][20][10][10] = {1}; // gives segmentation fault
+	printf("f : %d\n",sizeof(f1));
+	// map<mapKey,float> outerWheelMap;
+	// mapKey m = mapKey(1,2,3,4,5);
+	// outerWheelMap.insert(pair<mapKey,float>(m,1));
+
 }
