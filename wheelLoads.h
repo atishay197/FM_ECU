@@ -9,7 +9,8 @@ typedef struct WheelLoad wheelLoad;
 
 void printWheelLoad(wheelLoad* w)
 {
-	printf("Wheel Loads :: FL : %f :: FR %f :: RL : %f :: RR : %f\n",w->FL,w->FR,w->RL,w->RR);
+	//printf("Wheel Loads :: FL : %f :: FR %f :: RL : %f :: RR : %f\n",w->FL,w->FR,w->RL,w->RR);
+	return;
 }
 
 void writeWheelLoad(wheelLoad* w, FILE* wout)

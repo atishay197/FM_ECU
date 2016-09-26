@@ -1,3 +1,4 @@
+#include "mapDataLayer.h"
 // All calculative functions
 
 float decreaseBy(float value, float percentage)
@@ -32,17 +33,16 @@ float getAvgTPS(struct Throttle t)
 	return ( t.TPS1 + t.TPS2 ) / 2;
 }
 
-
 float calculateTurningRadius(float steeredAngle)
 {
- const float wheel_base = 1.540;
- float turn_radius;
- if steeredAngle != 0
-   turnradius = (wheel_base/tan((3.1415*steeredAngle)/180));  //tan function from math.h, will give negative radius for left turn
- else if steeredAngle == 0
-   turnradius = 999999;	
- 
- return turnradius;
+	const float wheel_base = 1.540;
+	float turnRadius;
+	if (steeredAngle != 0)
+		turnRadius = (wheel_base/tan((3.1415*steeredAngle)/180));  
+		//tan function from math.h, will give negative radius for left turn
+	else if (steeredAngle == 0)
+		turnRadius = FLT_MAX;	
+	return turnRadius;
 }
 
 wheelLoad* returnWeightedLoads(wheelLoad* w[3], float weightage[3])
@@ -120,19 +120,31 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 }
 
 // complete function to fetch data from map
-float getOuterWheelTorque(float TPS, wheelLoad* load, float slip, float turningRadius)
+float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
+	int TPSDiv = getTPSDivision(TPS);
+	int wheelLoadDiv = getWheelLoadDivision(load);
+	printf("%f :: %d\n",load,wheelLoadDiv);
+	int slipDiv = getSlipDivision(slip);
+	int turningRadiusDiv = getTurningRaduisDivision(turningRadius);
+	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
 	return 100;
 }
 
 // complete function to fetch data from map
-float getInnerWheelTorque(float TPS, wheelLoad* load, float slip, float turningRadius)
+float getInnerWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
+	int TPSDiv = getTPSDivision(TPS);
+	int wheelLoadDiv = getWheelLoadDivision(load);
+	printf("%f :: %d\n",load,wheelLoadDiv);
+	int slipDiv = getSlipDivision(slip);
+	int turningRadiusDiv = getTurningRaduisDivision(turningRadius);
+	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
 	return 90;
 }
 
 // complete function to fetch data from map
-outputTorque* getStraightLineTorque(float TPS, wheelLoad* load, float slip)
+outputTorque* getStraightLineTorque(float TPS, float load, float slip, float wheelSpeed)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
 	output->RR = 100;
@@ -152,17 +164,20 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 	// TO DO See, if 5 is appropriate value for not being straigth line, this is being doublechecked here.
 	if(data->steeredAngle > 5)
 	{
-		output->RL = getOuterWheelTorque(TPS,load,Lslip,turningRadius);	// Outer Wheel - from Outer Wheel torque Map
-		output->RR = getInnerWheelTorque(TPS,load,Rslip,turningRadius);	// Inner Wheel - from Inner Wheel torque Map
+		output->RL = getOuterWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Outer Wheel - from Outer Wheel torque Map
+		output->RR = getInnerWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Inner Wheel - from Inner Wheel torque Map
 	}
 	else if(data->steeredAngle < -5)
 	{
-
-		output->RR = getOuterWheelTorque(TPS,load,Rslip,turningRadius);	// Outer Wheel - from Outer Wheel torque Map
-		output->RL = getInnerWheelTorque(TPS,load,Lslip,turningRadius);	// Inner Wheel - from Inner Wheel torque Map
+		output->RR = getOuterWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Outer Wheel - from Outer Wheel torque Map
+		output->RL = getInnerWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Inner Wheel - from Inner Wheel torque Map
 	}
 	else
-		output = getStraightLineTorque(TPS,load,(Rslip+Lslip)/2);
+	{
+		float avgWheelSpeed = (data->wheelSpeed.RR + data->wheelSpeed.RL)/2;
+		float avgWheelLoad= (load->RR + load->RL)/2;
+		output = getStraightLineTorque(TPS,avgWheelLoad,(Rslip+Lslip)/2,avgWheelSpeed);
+	}
 	return output;
 }
 
