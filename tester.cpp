@@ -1,61 +1,52 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-bool inRange(float value1, float value2 , float percentage)
-{
-	float maxval2 = value2 * 0.01 * (100 + percentage);
-	float minval2 = value2 * 0.01 * (100 - percentage);
-	if(value1 <= minval2 || value1 >= maxval2)
-		return false;
-	return true;
-}
+# define SLIP_DIVISIONS 100
+float slipRange[2] = {-5,5};
 
-float bringInRange(float value1, float value2, float percentage)
+struct arrayDivider
 {
-	return value1>value2?value2*(100+percentage)*0.01:value2*(100-percentage)*0.01;
-}
-
-struct mapKey
-{
-	int a,b,c,d,e;
-	mapKey(int a,int b,int c,int d,int e)
+	int divisions;
+	float range[2];
+	float rangeDivision[101];
+	arrayDivider(int divisions,float range[2])
 	{
-		this->a = a;
-		this->b = b;
-		this->c = c;
-		this->d = d;
-		this->e = e;
-	}	
+		this->divisions = divisions;
+		this->range[0] = range[0];
+		this->range[1] = range[1];
+	}
 };
+
+// create logrithmic Division/range creator
+struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase)
+{
+	float x;int i;
+	float max = ((-1*log(-1*(0.49-1))))/log(logBase);
+	float multiplier = a.range[1]/max;
+	for(i=50,x = 0 ; x < 0.5,i<100 ; x+=0.01,i++)
+	{
+		a.rangeDivision[i] = multiplier*((-1*log(-1*(x-1))))/log(logBase);
+		printf("%f\n",x);
+	}
+	for(i=0 ; i<50 ; i++)
+		a.rangeDivision[50-i] = -1*a.rangeDivision[50+i];
+	a.rangeDivision[100] = FLT_MAX;
+	a.rangeDivision[0] = -1*FLT_MAX;
+	return a;
+}
 
 int main()
 {
-	float x = 100;
-	float y = 109;
-	float z = 112;
-	float a = 91;
-	float b = 80;
-	printf("inRange : %d\n",inRange(y,x,10)?1:0);
-	printf("inRange : %d\n",inRange(z,x,10)?1:0);
-	printf("inRange : %d\n",inRange(a,x,10)?1:0);
-	printf("inRange : %d\n",inRange(b,x,10)?1:0);
-	printf("bringInRange : %f\n",bringInRange(y,x,10));
-	printf("bringInRange : %f\n",bringInRange(z,x,10));
-	printf("bringInRange : %f\n",bringInRange(a,x,10));
-	printf("bringInRange : %f\n",bringInRange(b,x,10));
-	float f1[20][20][20][10][10] = {1};
-	float f2[20][20][20][10][10] = {1};
-	// float f3[20][20][20][10][10] = {1};
-	// float f4[20][20][20][10][10] = {1};
-	// float f5[20][20][20][10][10] = {1};
-	// float f6[20][20][20][10][10] = {1};
-	// float f7[20][20][20][10][10] = {1};
-	// float f8[20][20][20][10][10] = {1};
-	// float f9[20][20][20][10][10] = {1};
-	// float f0[20][20][20][10][10] = {1}; // gives segmentation fault
-	printf("f : %d\n",sizeof(f1));
-	// map<mapKey,float> outerWheelMap;
-	// mapKey m = mapKey(1,2,3,4,5);
-	// outerWheelMap.insert(pair<mapKey,float>(m,1));
+	arrayDivider slip = arrayDivider(SLIP_DIVISIONS,slipRange);
+	slip = createLogrithmicDivision(slip,120);
+	for(int i=0 ; i<101 ; i++)
+	{
+		printf("%f\n",slip.rangeDivision[i]);
+	}
+	printf("MAX = %f",FLT_MAX);
 
+	// for(int i=0 ; i<100 ; i++)
+	// {
+	// 	float k = i/2;
+	// }
 }
