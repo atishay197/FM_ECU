@@ -11,18 +11,29 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
-float* createLinearCluster(int divNo, float Range[2])
+struct arrayDivider
 {
-	float *finalDiv;
-	float diff = (Range[1] -  Range[0]) / divNo;
-	for(int i=0  ; i<WHEELLOAD_DIVISIONS ; i++)
+	int divisions;
+	float range[2];
+	float rangeDivision[100];
+	arrayDivider(int divisions,float range[2])
+	{
+		this.divisions = divisions;
+		this.range = range;
+	}
+}
+
+struct arrayDivider createLinearCluster(struct arrayDivider a)
+{
+	float diff = (a.range[1] -  a.range[0]) / a.divisions;
+	for(int i=0  ; i<a.divisions ; i++)
 	{
 		if(i>0)
-			finalDiv[i] = finalDiv[i-1] + diff;
+			a.rangeDivision[i] = a.rangeDivision[i-1] + diff;
 		else
-			finalDiv[i] = Range[0];
+			a.rangeDivision[i] = a.range[0];
 	}
-	return finalDiv;
+	return a;
 } 
 
 
@@ -41,18 +52,19 @@ int getSlipDivision(float slip)
 // cluster linear - divisions of 15kgs each
 int getWheelLoadDivision(float load)
 {
-	float* a;
-	a = createLinearCluster(WHEELLOAD_DIVISIONS,wheelLoadRange);
+	arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
+	wheelLoad = createLinearCluster(wheelLoad);
 	for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
 	{
-		if(load < a[i])
+		printf("%f\n",wheelLoad.rangeDivision[i]);	
+		if(load < wheelLoad.rangeDivision[i])
 			return i;
 	}
 	return -1;
 }
 
 // logarithmic division
-int getTurningRaduisDivision(float turnRadius)
+int getTurningRadiusDivision(float turnRadius)
 {
 	return 4;
 }
