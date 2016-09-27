@@ -15,13 +15,14 @@ struct arrayDivider
 {
 	int divisions;
 	float range[2];
-	float rangeDivision[100];
+	float rangeDivision[101];
 	arrayDivider(int divisions,float range[2])
 	{
-		this.divisions = divisions;
-		this.range = range;
+		this->divisions = divisions;
+		this->range[0] = range[0];
+		this->range[1] = range[1];
 	}
-}
+};
 
 struct arrayDivider createLinearCluster(struct arrayDivider a)
 {
@@ -33,9 +34,21 @@ struct arrayDivider createLinearCluster(struct arrayDivider a)
 		else
 			a.rangeDivision[i] = a.range[0];
 	}
+	a.rangeDivision[a.divisions] = a.range[1];
 	return a;
 } 
 
+// create logrithmic cluster/range creator
+struct arrayDivider createLogrithmicCluster(struct arrayDivider a,float logBase)
+{
+	return a;
+}
+
+// create polynomial cluster/range creator
+struct arrayDivider createLogrithmicCluster(struct arrayDivider a, float polynomialEquation[10])
+{
+	return a;
+}
 
 // cluster logrithmically / polynomially
 int getTPSDivision(float TPS)
@@ -53,11 +66,14 @@ int getSlipDivision(float slip)
 int getWheelLoadDivision(float load)
 {
 	arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
+	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
 	wheelLoad = createLinearCluster(wheelLoad);
-	for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
+	// for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
+	// 	printf("%f, ",wheelLoad.rangeDivision[i]);
+	// printf("\n");
+	for(int i=0 ; i<WHEELLOAD_DIVISIONS ; i++)
 	{
-		printf("%f\n",wheelLoad.rangeDivision[i]);	
-		if(load < wheelLoad.rangeDivision[i])
+		if(load > wheelLoad.rangeDivision[i] && load < wheelLoad.rangeDivision[i+1])
 			return i;
 	}
 	return -1;

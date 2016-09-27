@@ -67,7 +67,7 @@ int main()
   	clock_t b = clock();
 	double timer = 0;
 	char buffer[1000];
-    float minfreq = 9999999;
+    float minfreq = 9999999,count = 0;
     carData* carData = readCarData();
     printCarData(carData);
     float avgFreq = 0;
@@ -86,7 +86,8 @@ int main()
   		double elapsed = double(e - b)/CLOCKS_PER_SEC;
         float curfreq = 1/(elapsed*1000);
   		//printf("Time : %f :: Frequency : %f kHz\n",elapsed,curfreq);
-        avgFreq = (((timer*100)-1)*avgFreq + curfreq)/(timer*100);
+        avgFreq = (((count)*avgFreq + curfreq)/(count+1));
+        count++;
         if(curfreq<minfreq) 
             minfreq = curfreq;
   		b = clock();

@@ -122,10 +122,9 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 // complete function to fetch data from map
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-		printf("HOLALAOO\n");
 	int TPSDiv = getTPSDivision(TPS);
 	int wheelLoadDiv = getWheelLoadDivision(load);
-	printf("%f :: %d\n",load,wheelLoadDiv);
+	// printf("O :: %f :: %d\n",load,wheelLoadDiv);
 	int slipDiv = getSlipDivision(slip);
 	int turningRadiusDiv = getTurningRadiusDivision(turningRadius);
 	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
@@ -135,10 +134,9 @@ float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius
 // complete function to fetch data from map
 float getInnerWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-		printf("HOLALAII\n");
 	int TPSDiv = getTPSDivision(TPS);
 	int wheelLoadDiv = getWheelLoadDivision(load);
-	printf("%f :: %d\n",load,wheelLoadDiv);
+	// printf("I :: %f :: %d\n",load,wheelLoadDiv);
 	int slipDiv = getSlipDivision(slip);
 	int turningRadiusDiv = getTurningRadiusDivision(turningRadius);
 	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
@@ -166,19 +164,16 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 	// TO DO See, if 5 is appropriate value for not being straigth line, this is being doublechecked here.
 	if(data->steeredAngle > 5)
 	{
-		printf("HOLALA1\n");
 		output->RL = getOuterWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Outer Wheel - from Outer Wheel torque Map
 		output->RR = getInnerWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Inner Wheel - from Inner Wheel torque Map
 	}
 	else if(data->steeredAngle < -5)
 	{
-		printf("HOLALA2\n");
 		output->RR = getOuterWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Outer Wheel - from Outer Wheel torque Map
 		output->RL = getInnerWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Inner Wheel - from Inner Wheel torque Map
 	}
 	else
 	{
-		printf("HOLALA3\n");
 		float avgWheelSpeed = (data->wheelSpeed.RR + data->wheelSpeed.RL)/2;
 		float avgWheelLoad= (load->RR + load->RL)/2;
 		output = getStraightLineTorque(TPS,avgWheelLoad,(Rslip+Lslip)/2,avgWheelSpeed);
