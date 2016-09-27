@@ -48,7 +48,7 @@ struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase
 	for(i=50,x = 0 ; x < 0.5,i<100 ; x+=0.01,i++)
 	{
 		a.rangeDivision[i] = multiplier*((-1*log(-1*(x-1))))/log(logBase);
-		printf("%f\n",x);
+		// printf("%f\n",x);
 	}
 	for(i=0 ; i<50 ; i++)
 		a.rangeDivision[50-i] = -1*a.rangeDivision[50+i];
@@ -73,11 +73,12 @@ int getTPSDivision(float TPS)
 // Division logrithmically 
 int getSlipDivision(float slip)
 {
-	arrayDivider slip = arrayDivider(SLIP_DIVISIONS,slipRange);
-	slip = createLogrithmicDivision(slip,SLIP_LOGRITHMIC_SCALE);
+	arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
+	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
+	slipDiv = createLogrithmicDivision(slipDiv,SLIP_LOGRITHMIC_SCALE);
 	for(int i=0 ; i<SLIP_DIVISIONS ; i++)
 	{
-		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
+		if(slip > slipDiv.rangeDivision[i] && slip <= slipDiv.rangeDivision[i+1])
 			return i;
 	}
 }

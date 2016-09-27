@@ -92,7 +92,7 @@ int main()
             minfreq = curfreq;
   		b = clock();
 	}
-    printf("Minimum frequency : %f\nAverage frequency : %f\n",minfreq,avgFreq);
+    printf("Minimum frequency : %f KHz\nAverage frequency : %f KHz\n",minfreq,avgFreq);
     fclose(outp);
 	fclose(wout);
 }
