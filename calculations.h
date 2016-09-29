@@ -111,7 +111,7 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 	// sum should always be 100
 	FILE *weightage_file  = fopen("weightage.txt", "r"); //open weightage_file having editable weights
 	float weightage[3] = {0,0,0};		// {Acceleration,Yaw,Suspot}
-	fscanf(weightage_file, "%d %d %d", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
+	fscanf(weightage_file, "%f %f %f", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
 	float weightSum = 0;
 	for(int i=0 ; i<3 ; i++)
 		weightSum += weightage[i];
