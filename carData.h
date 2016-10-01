@@ -23,6 +23,13 @@ struct TirePressure
 	float rear;
 };
 
+struct Suspension
+{
+	float dampingCoeff;					//random data entered in cardata.csv. change when necessary. Also, each wheel's damper has its own damping coeff
+	float springConstant;				//random data entered in cardata.csv. change when necessary
+	float pRodAngle;					//Push/Pull rod angle with the vertical in degrees. Random data entered in cardata.csv. change when necessary
+};
+
 struct CarData
 {
 	float carWeight;					// kgs
@@ -34,7 +41,7 @@ struct CarData
 	struct TirePressure tirePressure;	// psi
 	struct Camber camber;				// degrees
 	float frontDistribution;			// fraction : (%/100)
-
+	struct Suspension suspension;
 };
 typedef struct CarData carData;
 

@@ -71,26 +71,28 @@ int main()
     carData* carData = readCarData();
     printCarData(carData);
     float avgFreq = 0;
+	loggedData* prevData = readnextcsv(buffer);
 	while(fgets(buffer, 1000, file) != NULL)
 	{
 		timer += 0.01;
+		clock_t e = clock();
+  		double elapsed = double(e - b)/CLOCKS_PER_SEC;		
 		loggedData* currentData = readnextcsv(buffer);
 		printData(currentData);
 		if(currentData->exists)
         {
-			torqueVectoring(currentData,carData,outp,wout);	// EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
+			torqueVectoring(prevData,currentData,carData,outp,wout,elapsed);	// EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
         }
 		else
 			break;
-		clock_t e = clock();
-  		double elapsed = double(e - b)/CLOCKS_PER_SEC;
-        float curfreq = 1/(elapsed*1000);
+		b = clock();		
+		prevData = currentData;		
+		float curfreq = 1/(elapsed*1000);
   		//printf("Time : %f :: Frequency : %f kHz\n",elapsed,curfreq);
         avgFreq = (((count)*avgFreq + curfreq)/(count+1));
         count++;
         if(curfreq<minfreq) 
             minfreq = curfreq;
-  		b = clock();
 	}
     printf("Minimum frequency : %f KHz\nAverage frequency : %f KHz\n",minfreq,avgFreq);
     fclose(outp);

@@ -94,23 +94,30 @@ wheelLoad* calculateWheelLoadYaw(loggedData* data, carData* cData)
 }
 
 // TO DO : complete this function
-wheelLoad* calculateWheelLoadSusPot(loggedData* data, carData* cData)
+wheelLoad* calculateWheelLoadSusPot(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	wheelLoad* w = (wheelLoad* )malloc(sizeof(struct WheelLoad));
+	float B = cData->suspension.dampingCoeff;
+	float K = cData->suspension.springConstant;
+	float theta = (cData->suspension.pRodAngle)*3.1415/180;
+	w->FL = cos(theta) * ( ( B * ( (data->susPot.FL) - (prevData->susPot.FL) )/elapsed) + ( K * (data->susPot.FL) ) );
+	w->FR = cos(theta) * ( ( B * ( (data->susPot.FR) - (prevData->susPot.FR) )/elapsed) + ( K * (data->susPot.FR) ) );
+	w->RL = cos(theta) * ( ( B * ( (data->susPot.RL) - (prevData->susPot.RL) )/elapsed) + ( K * (data->susPot.RL) ) );
+	w->RR = cos(theta) * ( ( B * ( (data->susPot.RR) - (prevData->susPot.RR) )/elapsed) + ( K * (data->susPot.RR) ) );
 	return w;
 }
 
-wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
+wheelLoad* calculateWheelLoad(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	wheelLoad* w[3];	// wheelLoad from acceleration, yaw, SusPot
 	// TO DO : Write function for calculating loads via Yaw and susPot
 	w[0] = calculateWheelLoadAcceletarion(data,cData);
 	w[1] = calculateWheelLoadYaw(data,cData);
-	w[2] = calculateWheelLoadSusPot(data,cData);
+	w[2] = calculateWheelLoadSusPot(prevData,data,cData,elapsed);
 	// TO DO : make weightage parameter modifiable
 	// sum should always be 100
 	FILE *weightage_file  = fopen("weightage.txt", "r"); //open weightage_file having editable weights
-	float weightage[3] = {0,0,0};		// {Acceleration,Yaw,Suspot}
+	float weightage[3] = {100,0,0};		// {Acceleration,Yaw,Suspot}
 	fscanf(weightage_file, "%f %f %f", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
 	float weightSum = 0;
 	for(int i=0 ; i<3 ; i++)
@@ -184,7 +191,7 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 }
 
 // Fetches data from the torque map and informs the ML map modifier to modify map
-outputTorque* preventSlip(loggedData* data, carData* cData)
+outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
 	float avgTPS =  getAvgTPS(data->throttle);
@@ -197,7 +204,7 @@ outputTorque* preventSlip(loggedData* data, carData* cData)
 		// TO DO : Add a learner which keeps track of slip to modify MAP
 		// sendToLearner(Rslip,Lslip)
 	}
-	output = getDataFromTorqueMap(data,calculateWheelLoad(data,cData));
+	output = getDataFromTorqueMap(data,calculateWheelLoad(prevData,data,cData,elapsed));
 	return output;
 }
 
