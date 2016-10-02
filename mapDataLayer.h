@@ -61,6 +61,31 @@ struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase
 // create polynomial Division/range creator
 struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polynomialEquation[10])
 {
+	a.rangeDivision[0] = a.range[0];
+	a.rangeDivision[100] = a.range[1];
+	float max = 0 ;
+	for (int i=0 ; i<10 ; i++)
+	{
+		max = max + ( polynomialEquation[i] * pow((1-0.49),(9-i)) );
+	}
+	printf("%f ", max);
+	
+	float multiplier = range[1]/max;
+	printf("%f ", multiplier);
+	for (int i=50 , x=0 ; x < 0.5 , i<100 ; x=x+0.01 , i++)
+	{
+		float multiplied;		
+		for (int j=0 ; j<10 ; j++)
+		{
+			multiplied = multiplied + ( polynomialEquation[i] * pow((1-x),(9-i)) );
+		}		
+			
+		a.rangeDivision[i] = multiplier * multiplied;
+	}
+	for(int i=0 ; i<50 ; i++)
+		a.rangeDivision[50-i] = -1 * a.rangeDivision[50+i];
+	for(int i=0;i<101;i++)
+		printf("%f ", a.rangeDivision[i]);	
 	return a;
 }
 
