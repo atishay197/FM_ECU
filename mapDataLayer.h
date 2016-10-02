@@ -61,31 +61,29 @@ struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase
 // create polynomial Division/range creator
 struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polynomialEquation[10])
 {
-	a.rangeDivision[0] = a.range[0];
-	a.rangeDivision[100] = a.range[1];
-	float max = 0 ;
-	for (int i=0 ; i<10 ; i++)
+	int divisions[100];
+	for (int i=0;i<100;i++)
 	{
-		max = max + ( polynomialEquation[i] * pow((1-0.49),(9-i)) );
+			divisions[i] = i;
 	}
-	printf("%f ", max);
+	//define polynomial
 	
-	float multiplier = range[1]/max;
-	printf("%f ", multiplier);
-	for (int i=50 , x=0 ; x < 0.5 , i<100 ; x=x+0.01 , i++)
+	for (int j=0;j<101;j++)
 	{
-		float multiplied;		
-		for (int j=0 ; j<10 ; j++)
+		if(j==0)
+		a.rangeDivision[j]=a.range[0];
+		else if (j>0)
 		{
-			multiplied = multiplied + ( polynomialEquation[i] * pow((1-x),(9-i)) );
-		}		
-			
-		a.rangeDivision[i] = multiplier * multiplied;
+			a.rangeDivision[j]=a.rangeDivision[j-1] + ((divisions[j]*divisions[j]) + divisions[j] + 1);
+		}
 	}
-	for(int i=0 ; i<50 ; i++)
-		a.rangeDivision[50-i] = -1 * a.rangeDivision[50+i];
-	for(int i=0;i<101;i++)
-		printf("%f ", a.rangeDivision[i]);	
+	float factor = (a.range[1]/a.rangeDivision[99]);
+	//float final_values[99];
+	for (int k = 0;k<101;k++)
+	{
+		a.rangeDivision[k] = factor*a.rangeDivision[k];
+		//printf("%f\n", values[k]);
+	}	
 	return a;
 }
 
