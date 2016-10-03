@@ -1,12 +1,16 @@
 #include <bits/stdc++.h>
-using namespace std;
 
-# define SLIP_DIVISIONS 100
-float slipRange[2] = {-5,5};
+struct mapData
+{
+	int dimensions;
+	float data[5];
+	float finalData;
+};
 
 struct arrayDivider
 {
 	int divisions;
+	int curDiv;
 	float range[2];
 	float rangeDivision[101];
 	arrayDivider(int divisions,float range[2])
@@ -17,36 +21,60 @@ struct arrayDivider
 	}
 };
 
-// create logrithmic Division/range creator
-struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase)
-{
-	float x;int i;
-	float max = ((-1*log(-1*(0.49-1))))/log(logBase);
-	float multiplier = a.range[1]/max;
-	for(i=50,x = 0 ; x < 0.5,i<100 ; x+=0.01,i++)
+struct mapFetcherStruct{
+	int divisions[5];
+	bool fetchLeftRight[5];
+	mapFetcherStruct (int divisions[5], float values[5], float leftRange[5],float rightRange[5])
 	{
-		a.rangeDivision[i] = multiplier*((-1*log(-1*(x-1))))/log(logBase);
-		printf("%f\n",x);
+		for(int i=0 ; i<5 ; i++)
+		{
+			this->divisions[i] = divisions[i];
+			float diffLeft = values[i] - leftRange[i];
+			float diffRight = values[i] - rightRange[i];
+			fetchLeftRight[i] = diffRight>diffLeft?1:0;
+		}
+
 	}
-	for(i=0 ; i<50 ; i++)
-		a.rangeDivision[50-i] = -1*a.rangeDivision[50+i];
-	a.rangeDivision[100] = FLT_MAX;
-	a.rangeDivision[0] = -1*FLT_MAX;
-	return a;
+};
+
+
+float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayDivider a[5],int dimensions)
+{
+	float otherVal,thisVal,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
+	for(int i=0 ; i<dimensions ; i++)
+	{
+		otherVal = a[i].rangeDivision[curDiv];
+		thisVal = a[i].rangeDivision[curDiv+1];
+		diff = otherVal-thisVal;
+		diffCur = otherVal - mfs.data[i];
+		perOther = diffCur/diff;
+		finalMapOutput[i] = (perOther)*mapData.finalMapOutput + (1-perOther)*mapData.finalMapOutput;
+	}
+	for(int i=0 ; i<dimensions ; i++)
+		fullOutput += finalMapOutput[i];
+	return fullOutput;
+}
+
+int calculateDataPoints(int dimensions)
+{
+	return pow(dimensions,3)-1;
+}
+
+int writeToMap(float percentage)
+{
+	char[5];
+	if(percentage < 10)
+
+	else
+
+}
+
+struct mapData getMapdata(struct mapFetcherStruct mfs)
+{
+
 }
 
 int main()
 {
-	arrayDivider slip = arrayDivider(SLIP_DIVISIONS,slipRange);
-	slip = createLogrithmicDivision(slip,120);
-	for(int i=0 ; i<101 ; i++)
-	{
-		printf("%f\n",slip.rangeDivision[i]);
-	}
-	printf("MAX = %f",FLT_MAX);
-
-	// for(int i=0 ; i<100 ; i++)
-	// {
-	// 	float k = i/2;
-	// }
+		
 }

@@ -12,9 +12,33 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
+struct mapData
+{
+	int dimensions;
+	float data[5];
+	float finalData;
+};
+
+struct mapFetcherStruct{
+	int divisions[5];
+	float data[5];
+};
+
+struct mapFetcherStruct createMapFetcher(int divisions[5], float values[5])
+{
+	struct mapFetcherStruct m = (struct mapFetcherStruct)malloc(sizeof(struct mapFetcherStruct));
+	for(int i=0 ; i<5 ; i++)
+	{
+		m.divisions[i] = divisions[i];
+		m.data[i] = values[i];
+	}
+	return m;
+}
+
 struct arrayDivider
 {
 	int divisions;
+	int curDiv;
 	float range[2];
 	float rangeDivision[101];
 	arrayDivider(int divisions,float range[2])
@@ -71,7 +95,7 @@ int getTPSDivision(float TPS)
 }
 
 // Division logrithmically 
-int getSlipDivision(float slip)
+struct arrayDivider getSlipDivision(float slip)
 {
 	arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
 	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
@@ -79,12 +103,15 @@ int getSlipDivision(float slip)
 	for(int i=0 ; i<SLIP_DIVISIONS ; i++)
 	{
 		if(slip > slipDiv.rangeDivision[i] && slip <= slipDiv.rangeDivision[i+1])
-			return i;
+		{
+			a.curDiv = i;
+			return a;
+		}
 	}
 }
 
 // Division linear - divisions of 15kgs each
-int getWheelLoadDivision(float load)
+struct arrayDivider getWheelLoadDivision(float load)
 {
 	arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
 	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
@@ -95,7 +122,10 @@ int getWheelLoadDivision(float load)
 	for(int i=0 ; i<WHEELLOAD_DIVISIONS ; i++)
 	{
 		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
-			return i;
+		{
+			a.curDiv = i;
+			return a;
+		}
 	}
 	return -1;
 }
@@ -110,4 +140,21 @@ int getTurningRadiusDivision(float turnRadius)
 int getWheelSpeedDivision(float wheelSpeed)
 {
 	return 5;
+}
+
+float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayDivider a[4],int dimensions)
+{
+	float otherVal,thisVal,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
+	for(int i=0 ; i<dimensions ; i++)
+	{
+		otherVal = a[i].rangeDivision[curDiv];
+		thisVal = a[i].rangeDivision[curDiv+1];
+		diff = otherVal-thisVal;
+		diffCur = otherVal - mfs.data[i];
+		perOther = diffCur/diff;
+		finalMapOutput[i] = (perOther)*mapData.finalMapOutput + (1-perOther)*mapData.finalMapOutput;
+	}
+	for(int i=0 ; i<dimensions ; i++)
+		fullOutput += finalMapOutput[i];
+	return fullOutput;
 }

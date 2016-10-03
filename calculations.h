@@ -35,7 +35,7 @@ float getAvgTPS(struct Throttle t)
 
 float calculateTurningRadius(float steeredAngle)
 {
-	const float wheel_base = 1.540;
+	const float wheel_base = 1.540;	// TO DO: Change this please, all the data is in carData.csv
 	float turnRadius;
 	if (steeredAngle != 0)
 		turnRadius = (wheel_base/tan((3.1415*steeredAngle)/180));  
@@ -185,9 +185,9 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 outputTorque* preventSlip(loggedData* data, carData* cData)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
-	float avgTPS =  getAvgTPS(data->throttle);
 	float avgF = (data->wheelSpeed.FL + data->wheelSpeed.FR) / 2;
 	float avgR = (data->wheelSpeed.RL + data->wheelSpeed.RR) / 2;
+	// TO DO Replace this with a slip tracker feature so that algo can learn
 	if(!inRange(avgR,avgF,10))	// TO DO replace this 10 with feature which is modifiable/mappable
 	{
 		float Rslip = 100 * ( (data->wheelSpeed.FR/data->wheelSpeed.RR) - 1 );
@@ -195,6 +195,7 @@ outputTorque* preventSlip(loggedData* data, carData* cData)
 		// TO DO : Add a learner which keeps track of slip to modify MAP
 		// sendToLearner(Rslip,Lslip)
 	}
+	// TO DO Use precalculated wheel load from previous stage.
 	output = getDataFromTorqueMap(data,calculateWheelLoad(data,cData));
 	return output;
 }
