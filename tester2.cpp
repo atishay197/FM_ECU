@@ -32,6 +32,13 @@ float mapModifier5D(int dest[5],float increase)
 	}
 	for(i=0 ; i<5 ; i++)
 		printf("%f %f\n",calcDiff[i][0],calcDiff[i][1]);
+	float scaleMultiplier[5][2] = {0};
+	for(i=0 ; i<5 ; i++)
+	{
+	 	scaleMultiplier[i][0] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][0]));
+	 	scaleMultiplier[i][1] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][1]));
+	}
+	// Equation to be used : y = sin(x-pi/2) + 1
 	return 0;
 }
 
