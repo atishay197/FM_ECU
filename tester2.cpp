@@ -1,9 +1,24 @@
 #include <bits/stdc++.h>
 
-// TO DO Remove global variable
-float b[243][6];
+struct mapWriter
+{
+	float b[243][6];
+	int total;
+};
+
+void printMapWriter(mapWriter m)
+{
+	int i,j;
+	for(i=0 ; i<m.total ; i++)
+	{
+		for(j=0 ; j<6 ; j++)
+			printf("%f ",m.b[i][j]);
+		printf("\n");
+	}
+}
+
 // TO DO : Convert to recusive or maybe not
-void permute(int a[5][3], bool increaserMode)
+mapWriter permute(int a[5][3], bool increaserMode, mapWriter mw)
 {
 	int i,j,k,l,m,n=0;
 	for(i=0 ; i<3 ; i++)
@@ -14,30 +29,31 @@ void permute(int a[5][3], bool increaserMode)
 					{
 						if(i==1 && j==1 && k==1 && l==1 && m==1)
 							continue;
-						b[n][0] = a[0][i];
-						b[n][1] = a[1][j];
-						b[n][2] = a[2][k];
-						b[n][3] = a[3][l];
-						b[n][4] = a[4][m];
-						b[n][5] = 1;
+						mw.b[n][0] = a[0][i];
+						mw.b[n][1] = a[1][j];
+						mw.b[n][2] = a[2][k];
+						mw.b[n][3] = a[3][l];
+						mw.b[n][4] = a[4][m];
+						mw.b[n][5] = 1;
 						// for(int p=0 ; p<5 ; p++)
 						// 	printf("%d\t",b[n][p]);
 						// printf("\n");
 						if(increaserMode)
 						{
 							if(i != 1)
-								b[n][5] /= 2;
+								mw.b[n][5] /= 2;
 							if(j != 1)
-								b[n][5] /= 2;
+								mw.b[n][5] /= 2;
 							if(k != 1)
-								b[n][5] /= 2;
+								mw.b[n][5] /= 2;
 							if(l != 1)
-								b[n][5] /= 2;
+								mw.b[n][5] /= 2;
 							if(m != 1)
-								b[n][5] /= 2;
+								mw.b[n][5] /= 2;
 						}
 						n++;						
 					}
+	return mw;
 }
 
 float getFromMap(float dest[5])
@@ -56,7 +72,34 @@ bool inRange(float x[5])
 	return true;
 }
 
-void mapincementer5D(float dest[5],float increase)
+mapWriter filterMapWriter(mapWriter m)
+{
+	m.total = 0;
+	int i,j,k=0;
+	bool correctValues[243] = {0};
+	for(i=0 ; i<243 ; i++)
+	{
+		if(inRange(m.b[i]))
+		{
+			correctValues[i] = 1;
+			m.total++;
+		}
+	}
+	for(i=0 ; i<243 ; i++)
+	{
+		if(correctValues[i])
+		{
+			for(j=0 ; j<6 ; j++)
+			{
+				m.b[k][j] = m.b[i][j];
+			}
+			k++;
+		}
+	}
+	return m;
+}
+
+mapWriter mapincementer5D(float dest[5],float increase, mapWriter m)
 {
 	int i,j;
 	int calcDiff[5][3] = {0};
@@ -68,22 +111,19 @@ void mapincementer5D(float dest[5],float increase)
 	}
 	for(i=0 ; i<242 ; i++)
 		for(j=0 ; j<5 ; j++)
-			b[i][j] = 10;
-	permute(calcDiff,1);
+			m.b[i][j] = 10;
+	m = permute(calcDiff,1,m);
 	for(i=0 ; i<5 ; i++)
-		b[242][i] = dest[i];
-	b[242][5] = increase;
+		m.b[242][i] = dest[i];
+	m.b[242][5] = increase;
 	for(i=0 ; i<242 ; i++)
-		b[i][5] *= increase;
-	for(i=0 ; i<243 ; i++)
-	{
-		for(j=0 ; j<6 ; j++)
-			printf("%f ",b[i][j]);
-		printf("\n");
-	}
+		m.b[i][5] *= increase;
+	m = filterMapWriter(m);
+	printMapWriter(m);
+	return m;
 }
 
-float findincreaseLimit5D(float dest[5],float increase)
+float findincreaseLimit5D(float dest[5],float increase, mapWriter m)
 {
 	int i,j;
 	// printf("Map : %f\n",getFromMap(dest));
@@ -96,19 +136,19 @@ float findincreaseLimit5D(float dest[5],float increase)
 	}
 	for(i=0 ; i<242 ; i++)
 		for(j=0 ; j<242 ; j++)
-			b[i][j] = 10;
+			m.b[i][j] = 10;
 	// for(i=0 ; i<5 ; i++)
 	// 	printf("%d %d %d\n",calcDiff[0][i],calcDiff[1][i],calcDiff[2][i]);
-	permute(calcDiff,0);
+	m = permute(calcDiff,0,m);
 	bool mode = increase>0?1:0;
 	float finalMax = 101, finalMin = -1;
 	float curMapValue = getFromMap(dest);
 	float increaseedValue = curMapValue + increase;
 	for(i=0 ; i<242 ; i++)
 	{
-		if(inRange(b[i]))
+		if(inRange(m.b[i]))
 		{
-			float range = getFromMap(b[i]);
+			float range = getFromMap(m.b[i]);
 			if(range<finalMax)
 				finalMax = range;
 			if(range>finalMin)
@@ -130,13 +170,14 @@ float findincreaseLimit5D(float dest[5],float increase)
 		else
 			increase = finalMin - curMapValue;
 	printf("Final : %f\n",increase);
-	mapincementer5D(dest,increase);
 	return increase;
 }
 
 int main()
 {
-	float dest[5] = {3,4,5,6,7};
+	float dest[5] = {0,0,0,0,1};
 	float increase = -34;
-	increase = findincreaseLimit5D(dest,increase);
+	mapWriter m;
+	increase = findincreaseLimit5D(dest,increase,m);
+	m = mapincementer5D(dest,increase,m);
 }
