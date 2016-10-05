@@ -8,42 +8,45 @@ float getFromMap(int dest[5])
 	return val;
 }
 
-bool inRange(int x,int i)
+bool inRange(int x)
 {
-	if(x < 0)
-		return false;
-	if(i == 0 && x > 99)
-		return false;
-	if(i != 0 && x > 9)
+	if(x < 0 || x > 9)
 		return false;
 	return true;
 }
 
 float mapModifier5D(int dest[5],float increase)
 {
-	int mapfield[5] = {8,2,2,2,2},i;
+	int i;
 	float calcDiff[5][2] = {0};
 	for(i=0 ; i<5 ; i++)
 	{
-		if(inRange((dest[i]-mapfield[i]),i))
-			calcDiff[i][0] = dest[i]-mapfield[i];
-		if(inRange((dest[i] + mapfield[i]),i))
-			calcDiff[i][1] = dest[i] + mapfield[i];
+		calcDiff[i][0] = dest[i] - 2;
+		calcDiff[i][1] = dest[i] + 2;
 	}
 	for(i=0 ; i<5 ; i++)
 		printf("%f %f\n",calcDiff[i][0],calcDiff[i][1]);
 	float scaleMultiplier[5][2] = {0};
+	// To be used when advanced usage with bigger map and sinosoudal map increment is required
+	// for(i=0 ; i<5 ; i++)
+	// {
+	//  	scaleMultiplier[i][0] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][0]));
+	//  	scaleMultiplier[i][1] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][1]));
+	// }
+	// Use linear equations as number of points are reduced
+	// if(inRange((dest[i] + mapfield[i]),i))
+	float lRange[5],rRange[5];
 	for(i=0 ; i<5 ; i++)
 	{
-	 	scaleMultiplier[i][0] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][0]));
-	 	scaleMultiplier[i][1] = 0.1*(getFromMap(dest) - getFromMap(calcDiff[i][1]));
+		lRange[i] = getFromMap(calcDiff[i][0]);
+		rRange[i] = getFromMap(calcDiff[i][1]);
 	}
-	// Equation to be used : y = sin(x-pi/2) + 1
+	
 	return 0;
 }
 
 int main()
 {
-	int dest[5] = {50,5,5,5,5};
+	int dest[5] = {5,5,5,5,5};
 	mapModifier5D(dest,3);
 }
