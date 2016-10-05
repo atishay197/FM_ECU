@@ -13,7 +13,7 @@ FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
 
 
-loggedData* readnextcsv(char buffer[1000])
+loggedData* readnextcsv(char buffer[10000])
 {
 	loggedData* prevdata;
     prevdata = (LoggedData *)malloc(sizeof(struct LoggedData));
@@ -34,6 +34,10 @@ loggedData* readnextcsv(char buffer[1000])
     prevdata->steeredAngle = atof(strtok(NULL, ","));
     prevdata->throttle.TPS1 = atof(strtok(NULL, ","));
     prevdata->throttle.TPS2 = prevdata->throttle.TPS1+prevdata->throttle.TPS1*(((float)(rand()%30)-15)/1000);
+	prevdata->susPot.FL = atof(strtok(NULL, ","));
+    prevdata->susPot.FR = atof(strtok(NULL, ","));
+    prevdata->susPot.RL = atof(strtok(NULL, ","));
+    prevdata->susPot.RR = atof(strtok(NULL, ","));
 	return prevdata;
 }
 
@@ -57,6 +61,9 @@ carData* readCarData()
         cardata->camber.front = atof(strtok(NULL, ","));
         cardata->camber.rear = atof(strtok(NULL, ","));
         cardata->frontDistribution = atof(strtok(NULL, ","));
+		cardata->suspension.dampingCoeff = atof(strtok(NULL, ","));
+		cardata->suspension.springConstant = atof(strtok(NULL, ","));
+		cardata->suspension.pRodAngle = atof(strtok(NULL, ","));
         return cardata;
     }
 }
@@ -66,17 +73,18 @@ int main()
     fprintf(wout,"FL,FR,RL,RR\n");
   	clock_t b = clock();
 	double timer = 0;
-	char buffer[1000];
+	char buffer[10000];
     float minfreq = 9999999,count = 0;
     carData* carData = readCarData();
     printCarData(carData);
     float avgFreq = 0;
-	loggedData* prevData = readnextcsv(buffer);
+	loggedData* prevData = (LoggedData *)malloc(sizeof(struct LoggedData));
 	while(fgets(buffer, 1000, file) != NULL)
 	{
 		timer += 0.01;
 		clock_t e = clock();
-  		double elapsed = double(e - b)/CLOCKS_PER_SEC;		
+  		double elapsed = double(e - b)/CLOCKS_PER_SEC;	
+		b = clock();
 		loggedData* currentData = readnextcsv(buffer);
 		printData(currentData);
 		if(currentData->exists)
@@ -84,11 +92,10 @@ int main()
 			torqueVectoring(prevData,currentData,carData,outp,wout,elapsed);	// EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
         }
 		else
-			break;
-		b = clock();		
+			break;		
 		prevData = currentData;		
 		float curfreq = 1/(elapsed*1000);
-  		//printf("Time : %f :: Frequency : %f kHz\n",elapsed,curfreq);
+  		printf("Time : %f  %f :: Frequency : %f kHz\n",timer,elapsed,curfreq);
         avgFreq = (((count)*avgFreq + curfreq)/(count+1));
         count++;
         if(curfreq<minfreq) 

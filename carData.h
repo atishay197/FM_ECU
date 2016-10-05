@@ -56,4 +56,5 @@ void printCarData(carData* c)
 	printf("Wheel Dia : %f :: TirePressure : F : %f : R : %f\n",c->wheelDiameter,c->tirePressure.front,c->tirePressure.rear);
 	printf("Camber : F : %f R : %f\n",c->camber.front,c->camber.rear);
 	printf("Front: %f :: Rear: %f :: Weight :: F : %f : R : %f\n",c->frontDistribution,(1 - c->frontDistribution),fweight,rweight);
+	return;
 }
