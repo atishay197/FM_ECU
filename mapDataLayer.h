@@ -94,6 +94,26 @@ struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polyno
 // Division logrithmically / polynomially
 int getTPSDivision(float TPS)
 {
+	arrayDivider tpsDiv = arrayDivider(TPS_DIVISIONS,tpsRange);
+	FILE *polynomial_file  = fopen("polynomialTPS.txt", "r"); //open polynomialTPS file having editable weights
+	float polynomial[10];
+	fscanf(polynomial_file, "%f %f %f %f %f %f %f %f %f %f", &polynomial[0], &polynomial[1], &polynomial[2], &polynomial[3], &polynomial[4], &polynomial[5], &polynomial[6], &polynomial[7], &polynomial[8], &polynomial[9]); 
+	fclose(polynomial_file);
+	tpsDiv = createPolynomialDivision(tpsDiv,polynomial);
+	/*
+	for(int i=0;i<TPS_DIVISIONS;i++)
+	{
+		
+		tpsDiv.rangeDivision[i] += tpsRange[1]; 
+		printf("%f ", tpsDiv.rangeDivision[i]);
+		
+	}
+	*/
+	for(int i = 0 ; i<TPS_DIVISIONS+1 ; i++)
+	{
+		if (TPS> tpsDiv.rangeDivision[i] && TPS<=tpsDiv.rangeDivision[i+1])
+			return i;
+	}
 	return 1;
 }
 
@@ -119,7 +139,7 @@ int getWheelLoadDivision(float load)
 	// for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
 	// 	printf("%f, ",wheelLoad.rangeDivision[i]);
 	// printf("\n");
-	for(int i=0 ; i<WHEELLOAD_DIVISIONS ; i++)
+	for(int i=0 ; i<WHEELLOAD_DIVISIONS+1 ; i++)
 	{
 		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
 			return i;
