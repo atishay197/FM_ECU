@@ -123,7 +123,12 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
 	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
+	// printf("Cur : ");
+	// for(int i=0 ; i<5 ; i++)
+	// 	printf("%d ",a.a[i].curDiv);
+	// printf("\n");
 	mapFetcherStruct outerMap = mapFetcherStruct(a);
+	// printMapFetcherStruct(outerMap);
 	mapData outerWheelTorqueData = getDataFromOuterWheelMap(outerMap);
 	return interpolateFromMap(outerWheelTorqueData,outerMap,a);
 }
@@ -175,7 +180,7 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 }
 
 // Fetches data from the torque map and informs the ML map modifier to modify map
-outputTorque* preventSlip(loggedData* data, carData* cData)
+outputTorque* preventSlip(loggedData* data, carData* cData, wheelLoad* wLoad)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
 	float avgF = (data->wheelSpeed.FL + data->wheelSpeed.FR) / 2;
@@ -188,8 +193,7 @@ outputTorque* preventSlip(loggedData* data, carData* cData)
 		// TO DO : Add a learner which keeps track of slip to modify MAP
 		// sendToLearner(Rslip,Lslip)
 	}
-	// TO DO Use precalculated wheel load from previous stage.
-	output = getDataFromTorqueMap(data,calculateWheelLoad(data,cData));
+	output = getDataFromTorqueMap(data,wLoad);
 	return output;
 }
 

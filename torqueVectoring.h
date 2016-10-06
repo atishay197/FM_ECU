@@ -18,8 +18,7 @@ outputTorque* torqueVectoring(loggedData* data, struct CarData* cData, FILE* out
 		case 1 :		// straight
 		{
 			outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
-
-			output = preventSlip(data,cData);
+			output = preventSlip(data,cData,wLoad);
 			// TO DO : 0.9 and 1.1 in terms of % via machine learning algorithm
 			// if(output->RL/output->RR < 0.9)
 			// 	output->RR=0.9*output->RL;

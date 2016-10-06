@@ -57,6 +57,7 @@ carData* readCarData()
         cardata->camber.front = atof(strtok(NULL, ","));
         cardata->camber.rear = atof(strtok(NULL, ","));
         cardata->frontDistribution = atof(strtok(NULL, ","));
+        fclose(fcar);
         return cardata;
     }
 }
@@ -90,9 +91,11 @@ int main()
         count++;
         if(curfreq<minfreq) 
             minfreq = curfreq;
+        // printf("%f : %f :: %f kHz\n",timer,elapsed,curfreq);
   		b = clock();
 	}
     printf("Minimum frequency : %f KHz\nAverage frequency : %f KHz\n",minfreq,avgFreq);
     fclose(outp);
+    fclose(file);
 	fclose(wout);
 }
