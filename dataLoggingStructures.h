@@ -25,6 +25,14 @@ struct Throttle
 	float TPS2;
 };
 
+struct Suspot
+{
+	float FL;
+	float FR;
+	float RL;
+	float RR;
+};	
+
 struct LoggedData
 {
 	bool exists;						// true/false
@@ -37,7 +45,9 @@ struct LoggedData
 	float gyroYawVelocity;				// deg/s
 	float steeredAngle;					// deg
 	struct Throttle throttle;			// %
+	struct Suspot susPot;				//mm
 };
+
 typedef struct LoggedData loggedData;
 
 void printData(loggedData* r)

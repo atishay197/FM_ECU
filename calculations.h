@@ -90,29 +90,53 @@ wheelLoad* calculateWheelLoadAcceletarion(loggedData* data, carData* cData)
 wheelLoad* calculateWheelLoadYaw(loggedData* data, carData* cData)
 {
 	wheelLoad* w = (wheelLoad* )malloc(sizeof(struct WheelLoad));
+	w->FL = 100;
+	w->FR = 40;
+	w->RL = 50;
+	w->RR = 40;
 	return w;
 }
 
 // TO DO : complete this function
-wheelLoad* calculateWheelLoadSusPot(loggedData* data, carData* cData)
+wheelLoad* calculateWheelLoadSusPot(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	wheelLoad* w = (wheelLoad* )malloc(sizeof(struct WheelLoad));
+	float B = cData->suspension.dampingCoeff;
+	float K = cData->suspension.springConstant;
+	float theta = (cData->suspension.pRodAngle)*3.1415/180;
+/*	w->FL = cos(theta) * ( ( B * ( (data->susPot.FL) - (prevData->susPot.FL) )/elapsed) + ( K * (data->susPot.FL) ) );
+	w->FR = cos(theta) * ( ( B * ( (data->susPot.FR) - (prevData->susPot.FR) )/elapsed) + ( K * (data->susPot.FR) ) );
+	w->RL = cos(theta) * ( ( B * ( (data->susPot.RL) - (prevData->susPot.RL) )/elapsed) + ( K * (data->susPot.RL) ) );
+	w->RR = cos(theta) * ( ( B * ( (data->susPot.RR) - (prevData->susPot.RR) )/elapsed) + ( K * (data->susPot.RR) ) );
+	//printWheelLoad(w);
+/*
+	w->FL = 100;
+	w->FR = 40;
+	w->RL = 50;
+	w->RR = 40;
+*/
 	return w;
 }
 
-wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
+wheelLoad* calculateWheelLoad(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	wheelLoad* w[3];	// wheelLoad from acceleration, yaw, SusPot
 	// TO DO : Write function for calculating loads via Yaw and susPot
 	w[0] = calculateWheelLoadAcceletarion(data,cData);
-	w[1] = calculateWheelLoadYaw(data,cData);
-	w[2] = calculateWheelLoadSusPot(data,cData);
+	w[2] = calculateWheelLoadYaw(data,cData);
+	w[1] = calculateWheelLoadSusPot(prevData,data,cData,elapsed);
 	// TO DO : make weightage parameter modifiable
 	// sum should always be 100
+	FILE *weightage_file  = fopen("weightage.txt", "r"); //open weightage_file having editable weights
 	float weightage[3] = {100,0,0};		// {Acceleration,Yaw,Suspot}
+	fscanf(weightage_file, "%f %f %f", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
+	fclose(weightage_file);
 	float weightSum = 0;
 	for(int i=0 ; i<3 ; i++)
+	{
 		weightSum += weightage[i];
+		//printf("%f, ", weightage[i]);
+	}
 	if(weightSum != 100)				// check if weight != 100 and modify weightage in same ratio
 		for(int i=0 ; i<3 ; i++)
 			weightage[i] /= weightSum/100;
@@ -122,7 +146,7 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 // TO DO complete function to fetch data from map
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-	arrayValueStruct a = (TPS, load, slip, turningRadius, wheelSpeed,5);
+	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
 	mapFetcherStruct outerMap = mapFetcherStruct(a);
 	// printMapFetcherStruct(outerMap);
 	mapData outerWheelTorqueData = getDataFromOuterWheelMap(outerMap);
@@ -178,7 +202,8 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 }
 
 // Fetches data from the torque map and informs the ML map modifier to modify map
-outputTorque* preventSlip(loggedData* data, carData* cData, wheelLoad* wLoad)
+
+outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData, double elapsed, wheelLoad* wLoad)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
 	float avgF = (data->wheelSpeed.FL + data->wheelSpeed.FR) / 2;
@@ -192,5 +217,6 @@ outputTorque* preventSlip(loggedData* data, carData* cData, wheelLoad* wLoad)
 		// sendToLearner(Rslip,Lslip)
 	}
 	output = getDataFromTorqueMap(data,wLoad);
+	// calculateWheelLoad(prevData,data,cData,elapsed)
 	return output;
 }

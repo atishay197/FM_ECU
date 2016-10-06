@@ -164,6 +164,31 @@ struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase
 // create polynomial Division/range creator
 struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polynomialEquation[10])
 {
+	int i,j;
+	float max = 0;
+	for (j=0;j<10;j++)
+	{
+		max = max + (polynomialEquation[9-j]*pow(50,9-j));
+	}
+	float multiplier = a.range[1]/max;
+	for(i = 50,j = 0 ; j < 50,i < 100;i++,j++)
+	{
+		for (int k=0; k < 10 ; k++)
+		{
+			a.rangeDivision[i] = a.rangeDivision[i] + (polynomialEquation[9-k]*pow(j,9-k));
+		}
+		a.rangeDivision[i] = multiplier * a.rangeDivision[i];
+	}
+	for(i = 0 ; i < 50 ; i++)
+	{
+		a.rangeDivision[50 - i] = -1 * a.rangeDivision[50+i];
+	}
+	a.rangeDivision[100] = a.range[1];
+	a.rangeDivision[0] = a.range[0];
+	//for ( i=0;i<100;i++)
+	//{
+		//printf("%d", a.rangeDivision[i]);
+	//}	
 	return a;
 }
 
@@ -185,6 +210,27 @@ arrayDivider getTPSDivision(float TPS)
 	}
 	tps.curDiv = 0;
 	return tps;
+	// arrayDivider tpsDiv = arrayDivider(TPS_DIVISIONS,tpsRange);
+	// FILE *polynomial_file  = fopen("polynomialTPS.txt", "r"); //open polynomialTPS file having editable weights
+	// float polynomial[10];
+	// fscanf(polynomial_file, "%f %f %f %f %f %f %f %f %f %f", &polynomial[0], &polynomial[1], &polynomial[2], &polynomial[3], &polynomial[4], &polynomial[5], &polynomial[6], &polynomial[7], &polynomial[8], &polynomial[9]); 
+	// fclose(polynomial_file);
+	// tpsDiv = createPolynomialDivision(tpsDiv,polynomial);
+	// /*
+	// for(int i=0;i<TPS_DIVISIONS;i++)
+	// {
+		
+	// 	tpsDiv.rangeDivision[i] += tpsRange[1]; 
+	// 	printf("%f ", tpsDiv.rangeDivision[i]);
+		
+	// }
+	// */
+	// for(int i = 0 ; i<TPS_DIVISIONS+1 ; i++)
+	// {
+	// 	if (TPS> tpsDiv.rangeDivision[i] && TPS<=tpsDiv.rangeDivision[i+1])
+	// 		return i;
+	// }
+	// return 1;
 }
 
 // Division logrithmically 
@@ -214,7 +260,7 @@ arrayDivider getWheelLoadDivision(float load)
 	// for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
 	// 	printf("%f, ",wheelLoad.rangeDivision[i]);
 	// printf("\n");
-	for(int i=0 ; i<WHEELLOAD_DIVISIONS ; i++)
+	for(int i=0 ; i<WHEELLOAD_DIVISIONS+1 ; i++)
 	{
 		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
 		{
