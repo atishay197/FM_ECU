@@ -1,7 +1,7 @@
 // All map related calculations and map data transfer
 
-# define TPS_DIVISIONS 100
-# define SLIP_DIVISIONS 100
+# define TPS_DIVISIONS 10
+# define SLIP_DIVISIONS 10
 # define SLIP_LOGRITHMIC_SCALE 120
 # define WHEELLOAD_DIVISIONS 10
 # define RADIUS_DIVISIONS 10
@@ -21,26 +21,26 @@ struct mapData
 
 struct mapFetcherStruct{
 	int divisions[5];
-	float data[5];
-};
-
-struct mapFetcherStruct createMapFetcher(int divisions[5], float values[5])
-{
-	struct mapFetcherStruct m = (struct mapFetcherStruct)malloc(sizeof(struct mapFetcherStruct));
-	for(int i=0 ; i<5 ; i++)
+	bool fetchLeftRight[5];
+	mapFetcherStruct (int divisions[5], float values[5], float leftRange[5],float rightRange[5])
 	{
-		m.divisions[i] = divisions[i];
-		m.data[i] = values[i];
+		for(int i=0 ; i<5 ; i++)
+		{
+			this->divisions[i] = divisions[i];
+			float diffLeft = values[i] - leftRange[i];
+			float diffRight = values[i] - rightRange[i];
+			fetchLeftRight[i] = diffRight>diffLeft?1:0;
+		}
+
 	}
-	return m;
-}
+};
 
 struct arrayDivider
 {
 	int divisions;
 	int curDiv;
 	float range[2];
-	float rangeDivision[101];
+	float rangeDivision[11];
 	arrayDivider(int divisions,float range[2])
 	{
 		this->divisions = divisions;
@@ -89,29 +89,41 @@ struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polyno
 }
 
 // Division logrithmically / polynomially
-int getTPSDivision(float TPS)
+arrayDivider getTPSDivision(float TPS)
 {
-	return 1;
+	arrayDivider tps = arrayDivider(TPS_DIVISIONS,tpsRange);
+	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
+	tps = createLinearDivision(tps);
+	for(int i=0 ; i<TPS_DIVISIONS ; i++)
+	{
+		if(TPS > tps.rangeDivision[i] && TPS <= tps.rangeDivision[i+1])
+		{
+			tps.curDiv = i;
+			return tps;
+		}
+	}
+	return NULL;
 }
 
 // Division logrithmically 
-struct arrayDivider getSlipDivision(float slip)
+arrayDivider getSlipDivision(float slip)
 {
 	arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
-	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
+	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
 	slipDiv = createLogrithmicDivision(slipDiv,SLIP_LOGRITHMIC_SCALE);
 	for(int i=0 ; i<SLIP_DIVISIONS ; i++)
 	{
 		if(slip > slipDiv.rangeDivision[i] && slip <= slipDiv.rangeDivision[i+1])
 		{
-			a.curDiv = i;
-			return a;
+			slipDiv.curDiv = i;
+			return slipDiv;
 		}
 	}
+	return NULL;
 }
 
 // Division linear - divisions of 15kgs each
-struct arrayDivider getWheelLoadDivision(float load)
+arrayDivider getWheelLoadDivision(float load)
 {
 	arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
 	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
@@ -123,23 +135,46 @@ struct arrayDivider getWheelLoadDivision(float load)
 	{
 		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
 		{
-			a.curDiv = i;
-			return a;
+			wheelLoad.curDiv = i;
+			return wheelLoad;
 		}
 	}
-	return -1;
+	return NULL;
 }
 
 // logarithmic division
-int getTurningRadiusDivision(float turnRadius)
+arrayDivider getTurningRadiusDivision(float turnRadius)
 {
-	return 4;
+	arrayDivider radius = arrayDivider(RADIUS_DIVISIONS,radiusRange);
+	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
+	radius = createLinearDivision(radius);
+	for(int i=0 ; i<RADIUS_DIVISIONS ; i++)
+	{
+		if(turnRadius > radius.rangeDivision[i] && turnRadius <= radius.rangeDivision[i+1])
+		{
+			radius.curDiv = i;
+			return radius;
+		}
+	}
+	return NULL;
 }
 
-// divide logarithmically / polynomially
-int getWheelSpeedDivision(float wheelSpeed)
+// TO DO Divide polynomially not linearly
+// divide polynomially
+arrayDivider getWheelSpeedDivision(float wheelSpeed)
 {
-	return 5;
+	arrayDivider speed = arrayDivider(WHEELSPEED_DIVISIONS,wheelSpeedRange);
+	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
+	speed = createLinearDivision(speed);
+	for(int i=0 ; i<WHEELSPEED_DIVISIONS ; i++)
+	{
+		if(wheelSpeed > speed.rangeDivision[i] && wheelSpeed <= speed.rangeDivision[i+1])
+		{
+			speed.curDiv = i;
+			return speed;
+		}
+	}
+	return NULL;
 }
 
 float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayDivider a[4],int dimensions)

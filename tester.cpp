@@ -12,7 +12,7 @@ struct arrayDivider
 	int divisions;
 	int curDiv;
 	float range[2];
-	float rangeDivision[101];
+	float rangeDivision[11];
 	arrayDivider(int divisions,float range[2])
 	{
 		this->divisions = divisions;
