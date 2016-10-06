@@ -119,27 +119,20 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 	return returnWeightedLoads(w,weightage);
 }
 
-// complete function to fetch data from map
+// TO DO complete function to fetch data from map
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-	int TPSDiv = getTPSDivision(TPS);
-	int wheelLoadDiv = getWheelLoadDivision(load);
-	// printf("O :: %f :: %d\n",load,wheelLoadDiv);
-	int slipDiv = getSlipDivision(slip);
-	int turningRadiusDiv = getTurningRadiusDivision(turningRadius);
-	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
-	return 100;
+	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
+	mapFetcherStruct outerMap = mapFetcherStruct(a);
+	mapData outerWheelTorqueData = getDataFromOuterWheelMap(outerMap);
+	return interpolateFromMap(outerWheelTorqueData,outerMap,a);
 }
 
 // complete function to fetch data from map
 float getInnerWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-	int TPSDiv = getTPSDivision(TPS);
-	int wheelLoadDiv = getWheelLoadDivision(load);
-	// printf("I :: %f :: %d\n",load,wheelLoadDiv);
-	int slipDiv = getSlipDivision(slip);
-	int turningRadiusDiv = getTurningRadiusDivision(turningRadius);
-	int wheelSpeedDiv = getWheelSpeedDivision(wheelSpeed);
+	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
+	mapFetcherStruct innerMap = mapFetcherStruct(a);
 	return 90;
 }
 

@@ -1,5 +1,6 @@
 // All map related calculations and map data transfer
 
+// Everything has 10 divisions now :(
 # define TPS_DIVISIONS 10
 # define SLIP_DIVISIONS 10
 # define SLIP_LOGRITHMIC_SCALE 120
@@ -12,29 +13,6 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
-struct mapData
-{
-	int dimensions;
-	float data[5];
-	float finalData;
-};
-
-struct mapFetcherStruct{
-	int divisions[5];
-	bool fetchLeftRight[5];
-	mapFetcherStruct (int divisions[5], float values[5], float leftRange[5],float rightRange[5])
-	{
-		for(int i=0 ; i<5 ; i++)
-		{
-			this->divisions[i] = divisions[i];
-			float diffLeft = values[i] - leftRange[i];
-			float diffRight = values[i] - rightRange[i];
-			fetchLeftRight[i] = diffRight>diffLeft?1:0;
-		}
-
-	}
-};
-
 struct arrayDivider
 {
 	int divisions;
@@ -46,6 +24,92 @@ struct arrayDivider
 		this->divisions = divisions;
 		this->range[0] = range[0];
 		this->range[1] = range[1];
+	}
+	arrayDivider()
+	{
+
+		this->divisions = 0;
+		this->range[0] = 0;
+		this->range[1] = 999;
+	}
+};
+
+
+arrayDivider getTPSDivision(float);
+arrayDivider getSlipDivision(float);
+arrayDivider getWheelLoadDivision(float);
+arrayDivider getTurningRadiusDivision(float);
+arrayDivider getWheelSpeedDivision(float);
+
+// TO DO file/array input
+float getFromMap(int dest[5])
+{
+	float val = 80;
+	for(int i=0 ; i<5 ; i++)
+		val -= 0.1*dest[i];
+	return val;
+}
+
+
+struct mapData
+{
+	int dimensions;
+	float data[5];
+	float finalData;
+	mapData(int dim, float data[5],float fData)
+	{
+		dimensions = dim;
+		for(int i=0 ; i<dim ; i++)
+			this->data[i] = data[i];
+		finalData = fData;
+	}
+};
+
+
+struct arrayValueStruct
+{
+	struct arrayDivider a[5];
+	float values[5];
+	int dimensions;
+	arrayValueStruct(float TPS, float load, float slip, float turningRadius, float wheelSpeed, int dim)
+	{
+		dimensions = dim;
+		values[0] = TPS;
+		a[0] = getTPSDivision(TPS);
+		values[1] = load;
+		a[1] = getWheelLoadDivision(load);
+		values[2] = slip;
+		a[2] = getSlipDivision(slip);
+		values[3] = turningRadius;
+		a[3] = getTurningRadiusDivision(turningRadius);
+		values[4] = wheelSpeed;
+		a[4] = getWheelSpeedDivision(wheelSpeed);
+	}
+};
+
+struct mapFetcherStruct
+{
+	int divisions[5];
+	bool fetchLeftRight[5];
+	int dimensions;
+	mapFetcherStruct(arrayValueStruct a)
+	{
+		dimensions = a.dimensions;
+		for(int i=0 ; i<a.dimensions ; i++)
+		{
+			this->divisions[i] = a.a[i].divisions;
+			int curDiv = a.a[i].curDiv;
+			//arbitrary values to give correct division.
+			float leftRange=999999,rightRange=999999;
+			if(curDiv>=0 && curDiv<10)
+				leftRange = a.a[i].rangeDivision[curDiv];
+			if((curDiv+1)>=0 && (curDiv+1)<10)
+				float rightRange = a.a[i].rangeDivision[curDiv+1];
+			float diffLeft = a.values[i] - leftRange;
+			float diffRight = a.values[i] - rightRange;
+			fetchLeftRight[i] = diffRight>diffLeft?1:0;
+		}
+
 	}
 };
 
@@ -102,7 +166,6 @@ arrayDivider getTPSDivision(float TPS)
 			return tps;
 		}
 	}
-	return NULL;
 }
 
 // Division logrithmically 
@@ -119,7 +182,6 @@ arrayDivider getSlipDivision(float slip)
 			return slipDiv;
 		}
 	}
-	return NULL;
 }
 
 // Division linear - divisions of 15kgs each
@@ -139,7 +201,6 @@ arrayDivider getWheelLoadDivision(float load)
 			return wheelLoad;
 		}
 	}
-	return NULL;
 }
 
 // logarithmic division
@@ -156,7 +217,6 @@ arrayDivider getTurningRadiusDivision(float turnRadius)
 			return radius;
 		}
 	}
-	return NULL;
 }
 
 // TO DO Divide polynomially not linearly
@@ -174,22 +234,73 @@ arrayDivider getWheelSpeedDivision(float wheelSpeed)
 			return speed;
 		}
 	}
-	return NULL;
 }
 
-float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayDivider a[4],int dimensions)
+mapData getDataFromOuterWheelMap(mapFetcherStruct m)
+{
+	int divisions[6][5],i,j;
+	for(j=0 ; j<m.dimensions ; j++)
+		divisions[0][j] = m.divisions[i];
+	for(i=1 ; i<m.dimensions+1 ; i++)
+	{
+		for(j=0 ; j<m.dimensions ; j++)
+		{
+			divisions[i][j] = m.divisions[i];
+			if((i-1) == j)
+			{
+				if(!m.fetchLeftRight)
+					divisions[i][j] -= 1;
+				else
+					divisions[i][j] += 1;
+			}
+		}
+	}
+	float final = getFromMap(divisions[i]);
+	float data[5];
+	for(i=1 ; i<m.dimensions+1 ; i++)
+		data[i] = getFromMap(divisions[i]);
+	return mapData(m.dimensions,data,final);
+}
+
+mapData getDataFromInnerWheelMap(mapFetcherStruct m)
+{
+	int divisions[6][5],i,j;
+	for(j=0 ; j<m.dimensions ; j++)
+		divisions[0][j] = m.divisions[i];
+	for(i=1 ; i<m.dimensions+1 ; i++)
+	{
+		for(j=0 ; j<m.dimensions ; j++)
+		{
+			divisions[i][j] = m.divisions[i];
+			if((i-1) == j)
+			{
+				if(!m.fetchLeftRight)
+					divisions[i][j] -= 1;
+				else
+					divisions[i][j] += 1;
+			}
+		}
+	}
+	float final = getFromMap(divisions[i]);
+	float data[5];
+	for(i=1 ; i<m.dimensions+1 ; i++)
+		data[i] = getFromMap(divisions[i]);
+	return mapData(m.dimensions,data,final);
+}
+
+float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayValueStruct avs)
 {
 	float otherVal,thisVal,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
-	for(int i=0 ; i<dimensions ; i++)
+	for(int i=0 ; i<m.dimensions ; i++)
 	{
-		otherVal = a[i].rangeDivision[curDiv];
-		thisVal = a[i].rangeDivision[curDiv+1];
+		otherVal = avs.a[i].rangeDivision[avs.a[i].curDiv];
+		thisVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)+1];
 		diff = otherVal-thisVal;
-		diffCur = otherVal - mfs.data[i];
+		diffCur = otherVal - m.data[i];
 		perOther = diffCur/diff;
-		finalMapOutput[i] = (perOther)*mapData.finalMapOutput + (1-perOther)*mapData.finalMapOutput;
+		finalMapOutput[i] = (perOther)*m.finalData + (1-perOther)*m.finalData;
 	}
-	for(int i=0 ; i<dimensions ; i++)
+	for(int i=0 ; i<m.dimensions ; i++)
 		fullOutput += finalMapOutput[i];
-	return fullOutput;
+	return fullOutput/m.dimensions;
 }

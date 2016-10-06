@@ -1,10 +1,3 @@
-struct mapData
-{
-	int dimensions;
-	float data[5];
-	float finalData;
-};
-
 int calculateDataPoints(int dimensions)
 {
 	return pow(dimensions,3)-1;
@@ -19,7 +12,7 @@ int writeToMap(float percentage)
 
 }
 
-struct *mapData getMapdata
+struct mapData getMapdata
 {
 
 }

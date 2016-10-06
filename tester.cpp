@@ -41,15 +41,15 @@ struct mapFetcherStruct{
 float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayDivider a[5],int dimensions)
 {
 	float otherVal,thisVal,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
-	for(int i=0 ; i<dimensions ; i++)
-	{
-		otherVal = a[i].rangeDivision[curDiv];
-		thisVal = a[i].rangeDivision[curDiv+1];
-		diff = otherVal-thisVal;
-		diffCur = otherVal - mfs.data[i];
-		perOther = diffCur/diff;
-		finalMapOutput[i] = (perOther)*mapData.finalMapOutput + (1-perOther)*mapData.finalMapOutput;
-	}
+	// for(int i=0 ; i<dimensions ; i++)
+	// {
+	// 	otherVal = a[i].rangeDivision[curDiv];
+	// 	thisVal = a[i].rangeDivision[curDiv+1];
+	// 	diff = otherVal-thisVal;
+	// 	diffCur = otherVal - mfs.data[i];
+	// 	perOther = diffCur/diff;
+	// 	finalMapOutput[i] = (perOther)*mapData.finalMapOutput + (1-perOther)*mapData.finalMapOutput;
+	// }
 	for(int i=0 ; i<dimensions ; i++)
 		fullOutput += finalMapOutput[i];
 	return fullOutput;
@@ -60,21 +60,11 @@ int calculateDataPoints(int dimensions)
 	return pow(dimensions,3)-1;
 }
 
-int writeToMap(float percentage)
-{
-	char[5];
-	if(percentage < 10)
-
-	else
-
-}
-
-struct mapData getMapdata(struct mapFetcherStruct mfs)
-{
-
-}
-
 int main()
 {
-		
+	int divisions[5] = {4,5,6,4,5};
+	float values[5] = {};
+	float a[10][10][10][10][10] = {0};
+	float b[10][10][10][10][10] = {0};
+	float c[10][10][10][10] = {0};
 }
