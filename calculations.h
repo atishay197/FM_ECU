@@ -122,11 +122,7 @@ wheelLoad* calculateWheelLoad(loggedData* data, carData* cData)
 // TO DO complete function to fetch data from map
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed)
 {
-	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
-	// printf("Cur : ");
-	// for(int i=0 ; i<5 ; i++)
-	// 	printf("%d ",a.a[i].curDiv);
-	// printf("\n");
+	arrayValueStruct a = (TPS, load, slip, turningRadius, wheelSpeed,5);
 	mapFetcherStruct outerMap = mapFetcherStruct(a);
 	// printMapFetcherStruct(outerMap);
 	mapData outerWheelTorqueData = getDataFromOuterWheelMap(outerMap);
@@ -138,7 +134,9 @@ float getInnerWheelTorque(float TPS, float load, float slip, float turningRadius
 {
 	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
 	mapFetcherStruct innerMap = mapFetcherStruct(a);
-	return 90;
+	mapData innerWheelTorqueData = getDataFromInnerWheelMap(innerMap);
+	// printMapFetcherStruct(innerMap);
+	return interpolateFromMap(innerWheelTorqueData,innerMap,a);
 }
 
 // complete function to fetch data from map
@@ -196,5 +194,3 @@ outputTorque* preventSlip(loggedData* data, carData* cData, wheelLoad* wLoad)
 	output = getDataFromTorqueMap(data,wLoad);
 	return output;
 }
-
-

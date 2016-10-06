@@ -278,6 +278,7 @@ mapData getDataFromOuterWheelMap(mapFetcherStruct m)
 			}
 		}
 	}
+	// TO DO replace get from map by respective Maps
 	float final = getFromMap(divisions[0]);
 	float data[5];
 	for(i=1 ; i<m.dimensions+1 ; i++)
@@ -289,12 +290,14 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 {
 	int divisions[6][5],i,j;
 	for(j=0 ; j<m.dimensions ; j++)
-		divisions[0][j] = m.divisions[i];
+		divisions[0][j] = m.divisions[j];
+	// printf("seg4\n");
 	for(i=1 ; i<m.dimensions+1 ; i++)
 	{
 		for(j=0 ; j<m.dimensions ; j++)
 		{
-			divisions[i][j] = m.divisions[i];
+			// printf("Seg1 %d %d\n",i,j);
+			divisions[i][j] = m.divisions[i-1];
 			if((i-1) == j)
 			{
 				if(!m.fetchLeftRight)
@@ -304,7 +307,8 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 			}
 		}
 	}
-	float final = getFromMap(divisions[i]);
+	// TO DO replace get from map by respective Maps
+	float final = getFromMap(divisions[0]);
 	float data[5];
 	for(i=1 ; i<m.dimensions+1 ; i++)
 		data[i] = getFromMap(divisions[i]);
