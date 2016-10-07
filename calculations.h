@@ -6,13 +6,6 @@ float decreaseBy(float value, float percentage)
 	return value*percentage/100;
 }
 
-float abs(float i)
-{
-	if(i>0)
-		return i;
-	return -1*i;
-}
-
 bool inRange(float value1, float value2 , float percentage)
 {
 	float maxval2 = value2 * 0.01 * (100 + percentage);
@@ -41,7 +34,8 @@ float calculateTurningRadius(float steeredAngle)
 		turnRadius = (wheel_base/tan((3.1415*steeredAngle)/180));  
 		//tan function from math.h, will give negative radius for left turn
 	else if (steeredAngle == 0)
-		turnRadius = FLT_MAX;	
+		turnRadius = 99999;
+	printf("%f \n",turnRadius);	
 	return turnRadius;
 }
 
@@ -158,8 +152,8 @@ float getInnerWheelTorque(float TPS, float load, float slip, float turningRadius
 {
 	arrayValueStruct a = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed,5);
 	mapFetcherStruct innerMap = mapFetcherStruct(a);
-	mapData innerWheelTorqueData = getDataFromInnerWheelMap(innerMap);
 	// printMapFetcherStruct(innerMap);
+	mapData innerWheelTorqueData = getDataFromInnerWheelMap(innerMap);
 	return interpolateFromMap(innerWheelTorqueData,innerMap,a);
 }
 
@@ -182,12 +176,12 @@ outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
 	float turningRadius = calculateTurningRadius(data->steeredAngle);
 	// TO DO create fethcer for fetching data from map Outer, Inner or Straight
 	// TO DO See, if 5 is appropriate value for not being straigth line, this is being doublechecked here.
-	if(data->steeredAngle > 5)
+	if(data->steeredAngle > 3)
 	{
 		output->RL = getOuterWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Outer Wheel - from Outer Wheel torque Map
 		output->RR = getInnerWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Inner Wheel - from Inner Wheel torque Map
 	}
-	else if(data->steeredAngle < -5)
+	else if(data->steeredAngle < -3)
 	{
 		output->RR = getOuterWheelTorque(TPS,load->RR,Rslip,turningRadius,data->wheelSpeed.RR);	// Outer Wheel - from Outer Wheel torque Map
 		output->RL = getInnerWheelTorque(TPS,load->RL,Lslip,turningRadius,data->wheelSpeed.RL);	// Inner Wheel - from Inner Wheel torque Map

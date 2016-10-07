@@ -14,6 +14,13 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
+float abs(float i)
+{
+	if(i>=0)
+		return i;
+	return -1*i;
+}
+
 struct arrayDivider
 {
 	int divisions;
@@ -87,7 +94,6 @@ struct arrayValueStruct
 	}
 };
 
-
 struct mapFetcherStruct
 {
 	int divisions[5];
@@ -98,17 +104,18 @@ struct mapFetcherStruct
 		dimensions = a.dimensions;
 		for(int i=0 ; i<a.dimensions ; i++)
 		{
-			this->divisions[i] = a.a[i].divisions;
+			this->divisions[i] = a.a[i].curDiv;
 			int curDiv = a.a[i].curDiv;
 			//arbitrary values to give correct division.
 			float leftRange=999999,rightRange=999999;
 			if(curDiv>=0 && curDiv<10)
 				leftRange = a.a[i].rangeDivision[curDiv];
 			if((curDiv+1)>=0 && (curDiv+1)<10)
-				float rightRange = a.a[i].rangeDivision[curDiv+1];
-			float diffLeft = a.values[i] - leftRange;
-			float diffRight = a.values[i] - rightRange;
+				rightRange = a.a[i].rangeDivision[curDiv+1];
+			float diffLeft = abs(a.values[i] - leftRange);
+			float diffRight = abs(a.values[i] - rightRange);
 			fetchLeftRight[i] = diffRight>diffLeft?1:0;
+			// printf("%d %f %f %d\n",i,diffLeft,diffRight,fetchLeftRight[i]);
 		}
 
 	}
@@ -122,7 +129,8 @@ void printMapFetcherStruct(mapFetcherStruct m)
 	printf("\n");
 	for(i=0 ; i<5 ; i++)
 		printf("%d ",m.fetchLeftRight[i]);
-	printf("\nDim : %d\n",m.dimensions);
+	printf("\n");
+	printf("Dim : %d\n",m.dimensions);
 }
 
 
@@ -363,13 +371,15 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 
 float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayValueStruct avs)
 {
-	float otherVal,thisVal,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
+	float otherVal=-99999,thisVal=99999,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
 	for(int i=0 ; i<m.dimensions ; i++)
 	{
 		// printf("div : %d\n",avs.a[i].curDiv);
-		otherVal = avs.a[i].rangeDivision[avs.a[i].curDiv];
+		if((avs.a[i].curDiv)+1>-1)
+			otherVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)-1];
 		// printf("seg3\n");
-		thisVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)+1];
+		if((avs.a[i].curDiv)+1<11)
+			thisVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)+1];
 		diff = otherVal-thisVal;
 		diffCur = otherVal - m.data[i];
 		perOther = diffCur/diff;

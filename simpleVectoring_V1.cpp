@@ -72,7 +72,6 @@ carData* readCarData()
 int main()
 {
     fprintf(wout,"FL,FR,RL,RR\n");
-  	clock_t b = clock();
 	double timer = 0;
 	char buffer[10000];
     float minfreq = 9999999,count = 0;
@@ -80,6 +79,7 @@ int main()
     printCarData(carData);
     float avgFreq = 0;
 	loggedData* prevData = (LoggedData *)malloc(sizeof(struct LoggedData));
+    clock_t b = clock();
 	while(fgets(buffer, 1000, file) != NULL)
 	{
 		timer += 0.01;
@@ -101,7 +101,6 @@ int main()
         if(curfreq<minfreq) 
             minfreq = curfreq;
         // printf("%f : %f :: %f kHz\n",timer,elapsed,curfreq);
-  		b = clock();
 	}
     printf("Minimum frequency : %f KHz\nAverage frequency : %f KHz\n",minfreq,avgFreq);
     fclose(outp);
