@@ -26,16 +26,15 @@ float getAvgTPS(struct Throttle t)
 	return ( t.TPS1 + t.TPS2 ) / 2;
 }
 
-float calculateTurningRadius(float steeredAngle)
+float calculateTurningRadius(float steeredAngle,float wheelbase)
 {
-	const float wheel_base = 1.540;	// TO DO: Change this please, all the data is in carData.csv
 	float turnRadius;
 	if (steeredAngle != 0)
-		turnRadius = (wheel_base/tan((3.1415*steeredAngle)/180));  
+		turnRadius = (wheelbase/tan((3.1415*steeredAngle)/180));  
 		//tan function from math.h, will give negative radius for left turn
 	else if (steeredAngle == 0)
 		turnRadius = 99999;
-	printf("%f \n",turnRadius);	
+	// printf("%f \n",turnRadius);	
 	return turnRadius;
 }
 
@@ -167,13 +166,13 @@ outputTorque* getStraightLineTorque(float TPS, float load, float slip, float whe
 }
 
 // strip required parameter from incoming data and call getTorque function to get R and L wheel data
-outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load)
+outputTorque* getDataFromTorqueMap(loggedData* data, wheelLoad* load,float wheelbase)
 {
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
 	float TPS = getAvgTPS(data->throttle);
 	float Rslip = 100 * ( (data->wheelSpeed.FR/data->wheelSpeed.RR) - 1 );
 	float Lslip = 100 * ( (data->wheelSpeed.FL/data->wheelSpeed.RL) - 1 );
-	float turningRadius = calculateTurningRadius(data->steeredAngle);
+	float turningRadius = calculateTurningRadius(data->steeredAngle,wheelbase);
 	// TO DO create fethcer for fetching data from map Outer, Inner or Straight
 	// TO DO See, if 5 is appropriate value for not being straigth line, this is being doublechecked here.
 	if(data->steeredAngle > 3)
@@ -210,7 +209,7 @@ outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData
 		// TO DO : Add a learner which keeps track of slip to modify MAP
 		// sendToLearner(Rslip,Lslip)
 	}
-	output = getDataFromTorqueMap(data,wLoad);
+	output = getDataFromTorqueMap(data,wLoad,cData->wheelbase);
 	// calculateWheelLoad(prevData,data,cData,elapsed)
 	return output;
 }
