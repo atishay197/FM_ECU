@@ -37,7 +37,7 @@ struct arrayDivider
 	{
 		this->divisions = 0;
 		this->range[0] = 0;
-		this->range[1] = 999;
+		this->range[1] = 0;
 	}
 };
 
@@ -134,78 +134,12 @@ void printMapFetcherStruct(mapFetcherStruct m)
 }
 
 
-struct arrayDivider createLinearDivision(struct arrayDivider a)
-{
-	float diff = (a.range[1] -  a.range[0]) / a.divisions;
-	for(int i=0  ; i<a.divisions ; i++)
-	{
-		if(i>0)
-			a.rangeDivision[i] = a.rangeDivision[i-1] + diff;
-		else
-			a.rangeDivision[i] = a.range[0];
-	}
-	a.rangeDivision[a.divisions] = a.range[1];
-	return a;
-} 
-
-// create logrithmic Division/range creator
-struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase)
-{
-	float x;int i;
-	float max = ((-1*log(-1*(0.49-1))))/log(logBase);
-	float multiplier = a.range[1]/max;
-	int midDiv = DIVISIONS/2;
-	for(i=midDiv,x = 0 ; x < 0.5,i<DIVISIONS ; x+=0.01,i++)
-	{
-		a.rangeDivision[i] = multiplier*((-1*log(-1*(x-1))))/log(logBase);
-	}
-	for(i=0 ; i<midDiv ; i++)
-		a.rangeDivision[midDiv-i] = -1*a.rangeDivision[midDiv+i];
-	a.rangeDivision[DIVISIONS] = FLT_MAX;
-	a.rangeDivision[0] = -1*FLT_MAX;
-	// for(i=0 ; i<DIVISIONS ; i++)
-	// 	printf("%f\n",a.rangeDivision[i]);
-	return a;
-}
-
-
-// create polynomial Division/range creator
-struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polynomialEquation[10])
-{
-	int i,j;
-	float max = 0;
-	for (j=0;j<10;j++)
-	{
-		max = max + (polynomialEquation[9-j]*pow(50,9-j));
-	}
-	float multiplier = a.range[1]/max;
-	for(i = 50,j = 0 ; j < 50,i < 100;i++,j++)
-	{
-		for (int k=0; k < 10 ; k++)
-		{
-			a.rangeDivision[i] = a.rangeDivision[i] + (polynomialEquation[9-k]*pow(j,9-k));
-		}
-		a.rangeDivision[i] = multiplier * a.rangeDivision[i];
-	}
-	for(i = 0 ; i < 50 ; i++)
-	{
-		a.rangeDivision[50 - i] = -1 * a.rangeDivision[50+i];
-	}
-	a.rangeDivision[100] = a.range[1];
-	a.rangeDivision[0] = a.range[0];
-	//for ( i=0;i<100;i++)
-	//{
-		//printf("%d", a.rangeDivision[i]);
-	//}	
-	return a;
-}
-
 // Division logrithmically / polynomially
-arrayDivider getTPSDivision(float TPS)
+arrayDivider getTPSDivision(float TPS, arrayDivider tps)
 {
-	arrayDivider tps = arrayDivider(TPS_DIVISIONS,tpsRange);
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
-	tps = createLinearDivision(tps);
+	// arrayDivider tps = arrayDivider(TPS_DIVISIONS,tpsRange);
+	// tps = createLinearDivision(tps);
 	for(int i=0 ; i<=TPS_DIVISIONS ; i++)
 	{
 		// printf("T :%f %f\n",TPS,tps.rangeDivision[i]);
@@ -242,10 +176,10 @@ arrayDivider getTPSDivision(float TPS)
 }
 
 // Division logrithmically 
-arrayDivider getSlipDivision(float slip)
+arrayDivider getSlipDivision(float slip, arrayDivider slipDiv)
 {
-	arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
+	// arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
 	slipDiv = createLogrithmicDivision(slipDiv,SLIP_LOGRITHMIC_SCALE);
 	for(int i=0 ; i<SLIP_DIVISIONS ; i++)
 	{
@@ -260,11 +194,11 @@ arrayDivider getSlipDivision(float slip)
 }
 
 // Division linear - divisions of 15kgs each
-arrayDivider getWheelLoadDivision(float load)
+arrayDivider getWheelLoadDivision(float load, arrayDivider wheelLoad)
 {
-	arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
 	// DO NOT initialize evertime, initialize in the beginning og torqueVectoring();
-	wheelLoad = createLinearDivision(wheelLoad);
+	// arrayDivider wheelLoad = arrayDivider(WHEELLOAD_DIVISIONS,wheelLoadRange);
+	// wheelLoad = createLinearDivision(wheelLoad);
 	// for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
 	// 	printf("%f, ",wheelLoad.rangeDivision[i]);
 	// printf("\n");
@@ -279,11 +213,11 @@ arrayDivider getWheelLoadDivision(float load)
 }
 
 // logarithmic division
-arrayDivider getTurningRadiusDivision(float turnRadius)
+arrayDivider getTurningRadiusDivision(float turnRadius, arrayDivider radius)
 {
-	arrayDivider radius = arrayDivider(RADIUS_DIVISIONS,radiusRange);
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
-	radius = createLinearDivision(radius);
+	// arrayDivider radius = arrayDivider(RADIUS_DIVISIONS,radiusRange);
+	// radius = createLinearDivision(radius);
 	for(int i=0 ; i<RADIUS_DIVISIONS ; i++)
 	{
 		if(turnRadius > radius.rangeDivision[i] && turnRadius <= radius.rangeDivision[i+1])
@@ -296,11 +230,11 @@ arrayDivider getTurningRadiusDivision(float turnRadius)
 
 // TO DO Divide polynomially not linearly
 // divide polynomially
-arrayDivider getWheelSpeedDivision(float wheelSpeed)
+arrayDivider getWheelSpeedDivision(float wheelSpeed, arrayDivider speed)
 {
-	arrayDivider speed = arrayDivider(WHEELSPEED_DIVISIONS,wheelSpeedRange);
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
-	speed = createLinearDivision(speed);
+	// arrayDivider speed = arrayDivider(WHEELSPEED_DIVISIONS,wheelSpeedRange);
+	// speed = createLinearDivision(speed);
 	for(int i=0 ; i<WHEELSPEED_DIVISIONS ; i++)
 	{
 		if(wheelSpeed > speed.rangeDivision[i] && wheelSpeed <= speed.rangeDivision[i+1])

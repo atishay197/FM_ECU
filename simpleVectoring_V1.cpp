@@ -4,6 +4,7 @@
 #include "wheelLoads.h"
 #include "carData.h"
 #include "torqueVectoring.h"
+#include "arrayDivisionFetcher.h"
 
 using namespace std;
 
