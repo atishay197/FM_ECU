@@ -314,7 +314,7 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 
 float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arrayValueStruct avs)
 {
-	float otherVal=-99999,thisVal=99999,diff,diffCur,perOther,finalMapOutput[5],fullOutput=0;
+	float leftVal=-99999,rightVal=99999,diff,diffCur,perLeft,finalMapOutput[5],fullOutput=0;
 	for(int i=0 ; i<m.dimensions ; i++)
 	{
 		// printf("div : %d\n",avs.a[i].curDiv);
