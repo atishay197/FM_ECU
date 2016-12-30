@@ -1,28 +1,18 @@
 // All map related calculations and map data transfer
 
 // Everything has 10 divisions now :(
-# define TPS_DIVISIONS 10
-# define SLIP_DIVISIONS 10
 # define SLIP_LOGRITHMIC_SCALE 12
-# define WHEELLOAD_DIVISIONS 10
-# define RADIUS_DIVISIONS 10
-# define WHEELSPEED_DIVISIONS 10
 # define DIVISIONS 10
+// Ranges for sensor values for division detection from map
 float tpsRange[2] = {0,100};
 float slipRange[2] = {-5,5};
 float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
-float abs(float i)
-{
-	if(i>=0)
-		return i;
-	return -1*i;
-}
-
 struct arrayDivider
 {
+	
 	int divisions;
 	int curDiv;
 	float range[2];
@@ -42,11 +32,11 @@ struct arrayDivider
 };
 
 
-arrayDivider getTPSDivision(float);
-arrayDivider getSlipDivision(float);
-arrayDivider getWheelLoadDivision(float);
-arrayDivider getTurningRadiusDivision(float);
-arrayDivider getWheelSpeedDivision(float);
+arrayDivider getTPSDivision(float,arrayDivider);
+arrayDivider getSlipDivision(float,arrayDivider);
+arrayDivider getWheelLoadDivision(float,arrayDivider);
+arrayDivider getTurningRadiusDivision(float,arrayDivider);
+arrayDivider getWheelSpeedDivision(float,arrayDivider);
 
 // TO DO file/array input
 float getFromMap(int dest[5])
@@ -78,19 +68,19 @@ struct arrayValueStruct
 	struct arrayDivider a[5];
 	float values[5];
 	int dimensions;
-	arrayValueStruct(float TPS, float load, float slip, float turningRadius, float wheelSpeed, int dim)
+	arrayValueStruct(float TPS, float load, float slip, float turningRadius, float wheelSpeed, int dim, struct arrayDivider b[5])
 	{
 		dimensions = dim;
 		values[0] = TPS;
-		a[0] = getTPSDivision(TPS);
+		a[0] = getTPSDivision(TPS,b[0]);
 		values[1] = load;
-		a[1] = getWheelLoadDivision(load);
+		a[1] = getWheelLoadDivision(load,b[1]);
 		values[2] = slip;
-		a[2] = getSlipDivision(slip);
+		a[2] = getSlipDivision(slip,b[2]);
 		values[3] = turningRadius;
-		a[3] = getTurningRadiusDivision(turningRadius);
+		a[3] = getTurningRadiusDivision(turningRadius,b[3]);
 		values[4] = wheelSpeed;
-		a[4] = getWheelSpeedDivision(wheelSpeed);
+		a[4] = getWheelSpeedDivision(wheelSpeed,b[4]);
 	}
 };
 
@@ -140,7 +130,7 @@ arrayDivider getTPSDivision(float TPS, arrayDivider tps)
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
 	// arrayDivider tps = arrayDivider(TPS_DIVISIONS,tpsRange);
 	// tps = createLinearDivision(tps);
-	for(int i=0 ; i<=TPS_DIVISIONS ; i++)
+	for(int i=0 ; i<=DIVISIONS ; i++)
 	{
 		// printf("T :%f %f\n",TPS,tps.rangeDivision[i]);
 		if(TPS > tps.rangeDivision[i] && TPS <= tps.rangeDivision[i+1])
@@ -180,8 +170,8 @@ arrayDivider getSlipDivision(float slip, arrayDivider slipDiv)
 {
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
 	// arrayDivider slipDiv = arrayDivider(SLIP_DIVISIONS,slipRange);
-	slipDiv = createLogrithmicDivision(slipDiv,SLIP_LOGRITHMIC_SCALE);
-	for(int i=0 ; i<SLIP_DIVISIONS ; i++)
+	// slipDiv = createLogrithmicDivision(slipDiv,SLIP_LOGRITHMIC_SCALE);
+	for(int i=0 ; i<DIVISIONS ; i++)
 	{
 		// printf("%f ",slipDiv.rangeDivision[i]);
 		if(slip > slipDiv.rangeDivision[i] && slip <= slipDiv.rangeDivision[i+1])
@@ -202,7 +192,7 @@ arrayDivider getWheelLoadDivision(float load, arrayDivider wheelLoad)
 	// for(int i=WHEELLOAD_DIVISIONS; i>=0 ; i--)
 	// 	printf("%f, ",wheelLoad.rangeDivision[i]);
 	// printf("\n");
-	for(int i=0 ; i<WHEELLOAD_DIVISIONS+1 ; i++)
+	for(int i=0 ; i<DIVISIONS+1 ; i++)
 	{
 		if(load > wheelLoad.rangeDivision[i] && load <= wheelLoad.rangeDivision[i+1])
 		{
@@ -218,7 +208,7 @@ arrayDivider getTurningRadiusDivision(float turnRadius, arrayDivider radius)
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
 	// arrayDivider radius = arrayDivider(RADIUS_DIVISIONS,radiusRange);
 	// radius = createLinearDivision(radius);
-	for(int i=0 ; i<RADIUS_DIVISIONS ; i++)
+	for(int i=0 ; i<DIVISIONS ; i++)
 	{
 		if(turnRadius > radius.rangeDivision[i] && turnRadius <= radius.rangeDivision[i+1])
 		{
@@ -235,7 +225,7 @@ arrayDivider getWheelSpeedDivision(float wheelSpeed, arrayDivider speed)
 	// DO NOT initialize evertime, initialize in the beginning of torqueVectoring();
 	// arrayDivider speed = arrayDivider(WHEELSPEED_DIVISIONS,wheelSpeedRange);
 	// speed = createLinearDivision(speed);
-	for(int i=0 ; i<WHEELSPEED_DIVISIONS ; i++)
+	for(int i=0 ; i<DIVISIONS ; i++)
 	{
 		if(wheelSpeed > speed.rangeDivision[i] && wheelSpeed <= speed.rangeDivision[i+1])
 		{
@@ -250,12 +240,10 @@ mapData getDataFromOuterWheelMap(mapFetcherStruct m)
 	int divisions[6][5],i,j;
 	for(j=0 ; j<m.dimensions ; j++)
 		divisions[0][j] = m.divisions[j];
-	// printf("seg4\n");
 	for(i=1 ; i<m.dimensions+1 ; i++)
 	{
 		for(j=0 ; j<m.dimensions ; j++)
 		{
-			// printf("Seg1 %d %d\n",i,j);
 			divisions[i][j] = m.divisions[i-1];
 			if((i-1) == j)
 			{

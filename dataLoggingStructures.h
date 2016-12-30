@@ -5,26 +5,22 @@ struct WheelSpeed
 	float RL;
 	float RR;
 };
-
 struct GForce
 {
 	float longitudnal;
 	float lateral;
 	float vertical;
 };
-
 struct BrakePressure
 {
 	int front;
 	int rear;
 };
-
 struct Throttle
 {
 	float TPS1;
 	float TPS2;
 };
-
 struct Suspot
 {
 	float FL;
@@ -32,7 +28,6 @@ struct Suspot
 	float RL;
 	float RR;
 };	
-
 struct LoggedData
 {
 	bool exists;						// true/false
@@ -47,7 +42,6 @@ struct LoggedData
 	struct Throttle throttle;			// %
 	struct Suspot susPot;				//mm
 };
-
 typedef struct LoggedData loggedData;
 
 void printData(loggedData* r)

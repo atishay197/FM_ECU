@@ -1,11 +1,4 @@
 #include <bits/stdc++.h>
-#include "dataLoggingStructures.h"
-#include "outputTorque.h"
-#include "wheelLoads.h"
-#include "carData.h"
-#include "torqueVectoring.h"
-#include "arrayDivisionFetcher.h"
-
 using namespace std;
 
 FILE* file = fopen("Sample.csv","r");
@@ -13,9 +6,18 @@ FILE* fcar = fopen("CarData.csv","r");
 FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
 
+#include "dataLoggingStructures.h"
+#include "outputTorque.h"
+#include "wheelLoads.h"
+#include "carData.h"
+#include "clustering.h"
+#include "torqueVectoring.h"
+#include "arrayDivisionFetcher.h"
+
 
 loggedData* readnextcsv(char buffer[10000])
 {
+    // Simple read from file and assign in structure
 	loggedData* prevdata;
     prevdata = (LoggedData *)malloc(sizeof(struct LoggedData));
     prevdata->exists = true;
@@ -44,6 +46,7 @@ loggedData* readnextcsv(char buffer[10000])
 
 carData* readCarData()
 {
+    // read first line from file and update structure in program
     char buffer[1000];
     if(fgets(buffer, 1000, fcar) != NULL)
     {
@@ -72,38 +75,62 @@ carData* readCarData()
 
 int main()
 {
+    // Write FL FR RL RR to output file : wheelLoad.csv for readbility
     fprintf(wout,"FL,FR,RL,RR\n");
+    // initiate timer
 	double timer = 0;
+    // initialize array divider to read divisions for map from file
+    struct arrayDivider sensorDivisions[5];
+    // arrayDivider[0] = 
+    // TO DO remove in finla code read from sensors directly
+    // buffer to read each line in CSV
 	char buffer[10000];
-    float minfreq = 9999999,count = 0;
+    // initialize minimum frequency and count to keep track of torquevectoring() iterations
+    float minfreq = 9999999,count = 0, avgFreq = 0;
+    // read carData like weight, CG coordinates, wheelbase, track etc.
     carData* carData = readCarData();
-    printCarData(carData);
-    float avgFreq = 0;
+    // printCarData(carData);
+    // Initialize prevData to e=be used in case of difference btw prev and current values are required
+    // Eg : used in case of calculation of wheel loads via gyro
 	loggedData* prevData = (LoggedData *)malloc(sizeof(struct LoggedData));
+    // initialize begin clock
     clock_t b = clock();
+    // While sensor is still providing data
 	while(fgets(buffer, 1000, file) != NULL)
 	{
+        // TO DO: increase timer based on actual timer in actual code
 		timer += 0.01;
+        // End clock value assigned
 		clock_t e = clock();
+        // calculate time difference to calculate code frequency
   		double elapsed = double(e - b)/CLOCKS_PER_SEC;	
+        // reassign begin to variable b
 		b = clock();
+        // read logged data from sensors in case of real code
 		loggedData* currentData = readnextcsv(buffer);
-		printData(currentData);
+		// printData(currentData);
+        // called until current data exists, 
+        // currentData->exists = false in case of data logging error
 		if(currentData->exists)
-        {
-			torqueVectoring(prevData,currentData,carData,outp,wout,elapsed);	// EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
+        {   
+            // EXECUTE TORQUE VECTORING ALGORITHM FOR EACH INPUT DATA.
+			torqueVectoring(prevData,currentData,carData,elapsed, sensorDivisions);
         }
 		else
-			break;		
+			break;	
+        // assign current data values to current Data to be used in the next loop	
 		prevData = currentData;		
+        // frequency calculation
 		float curfreq = 1/(elapsed*1000);
         avgFreq = (((count)*avgFreq + curfreq)/(count+1));
         count++;
+        // assign minimum frequency if current frequency is lower than it
         if(curfreq<minfreq) 
             minfreq = curfreq;
-        // printf("%f : %f :: %f kHz\n",timer,elapsed,curfreq);
+        printf("%f : %f :: %f kHz\n",timer,elapsed,curfreq);
 	}
     printf("Minimum frequency : %f KHz\nAverage frequency : %f KHz\n",minfreq,avgFreq);
+    // TO DO close all files, including extra files that are added in the beggining
     fclose(outp);
     fclose(file);
 	fclose(wout);
