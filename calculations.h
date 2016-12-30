@@ -159,7 +159,7 @@ wheelLoad* calculateWheelLoad(loggedData* prevData, loggedData* data, carData* c
 // TO DO complete function to fetch data from map
 float getOuterWheelTorque(float TPS, float load, float slip, float turningRadius, float wheelSpeed,struct arrayDivider a[5])
 {
-	// Initializr array value struct with cur divisions and values needed for interpolation
+	// Initialize array value struct with cur divisions and values needed for interpolation
 	arrayValueStruct avs = arrayValueStruct(TPS, load, slip, turningRadius, wheelSpeed, 5, a);
 	// get map fetcher stucture from calculated array svalue structure
 	mapFetcherStruct outerMap = mapFetcherStruct(avs);

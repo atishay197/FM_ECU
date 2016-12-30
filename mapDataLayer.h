@@ -39,6 +39,7 @@ arrayDivider getTurningRadiusDivision(float,arrayDivider);
 arrayDivider getWheelSpeedDivision(float,arrayDivider);
 
 // TO DO file/array input
+// Fix her up, this function is really sad :(
 float getFromMap(int dest[5])
 {
 	float val = 80;
@@ -62,7 +63,7 @@ struct mapData
 	}
 };
 
-
+// Does the job of fetching all the division values in one go
 struct arrayValueStruct
 {
 	struct arrayDivider a[5];
@@ -87,6 +88,7 @@ struct arrayValueStruct
 struct mapFetcherStruct
 {
 	int divisions[5];
+	// used to etermine wether left or right values from the map need to be fetched
 	bool fetchLeftRight[5];
 	int dimensions;
 	mapFetcherStruct(arrayValueStruct a)
@@ -98,6 +100,16 @@ struct mapFetcherStruct
 			int curDiv = a.a[i].curDiv;
 			//arbitrary values to give correct division.
 			float leftRange=999999,rightRange=999999;
+			/**
+			fetchLeftRightExplanation
+			Division boundary - 0.........|..........1.........|..........2
+			Value from sensor - ................x..........................
+			x is surely in division 1 as it lies between the two "|" that lie on left/right of 1
+			Now this map value has to be interpolated, so we want to know wether to fetch value on left or right
+			Now we check the difference of x from the left and right boundary.
+			It being closer to the left bounary, map value from division 0 will be fetched
+			So the boolean flag is set to 0, 0 means fetch left value
+			**/
 			if(curDiv>=0 && curDiv<10)
 				leftRange = a.a[i].rangeDivision[curDiv];
 			if((curDiv+1)>=0 && (curDiv+1)<10)
@@ -264,18 +276,27 @@ mapData getDataFromOuterWheelMap(mapFetcherStruct m)
 
 mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 {
+	// First read "fetchLeftRightExplanation" <- search for term....
+	// divisions[6][5] is the 6 map values that will be fetched from the 5D map.
+	// divisions[0] represents the actual map value that is required.
+	// divisions[1-5] represents the 5 values that are fetched only for interpolation purposes
+	// divisions[x][5] is 5 dimensional because the map is 5D so 5 indexes correspond to 1 value
 	int divisions[6][5],i,j;
 	for(j=0 ; j<m.dimensions ; j++)
 		divisions[0][j] = m.divisions[j];
-	// printf("seg4\n");
+	// orignal division values stored in divisions[0]
 	for(i=1 ; i<m.dimensions+1 ; i++)
 	{
 		for(j=0 ; j<m.dimensions ; j++)
 		{
 			// printf("Seg1 %d %d\n",i,j);
+			// divisions[1-5] are being filled
+			// it is first set equal to the actual indexes of the map value to be fetched
 			divisions[i][j] = m.divisions[i-1];
+			// value of 1 index per dimension is changed for interpolation values
 			if((i-1) == j)
 			{
+				// change index value of dimension if left or right fetching has to be done
 				if(!m.fetchLeftRight)
 					divisions[i][j] -= 1;
 				else
@@ -287,7 +308,7 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 	float final = getFromMap(divisions[0]);
 	float data[5];
 	for(i=1 ; i<m.dimensions+1 ; i++)
-		data[i] = getFromMap(divisions[i]);
+		data[i-1] = getFromMap(divisions[i]);
 	return mapData(m.dimensions,data,final);
 }
 
@@ -297,16 +318,28 @@ float interpolateFromMap(struct mapData m,struct mapFetcherStruct mfs,struct arr
 	for(int i=0 ; i<m.dimensions ; i++)
 	{
 		// printf("div : %d\n",avs.a[i].curDiv);
+		// check if division value is valid
 		if((avs.a[i].curDiv)+1>-1)
-			otherVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)-1];
-		// printf("seg3\n");
+		{
+			// find left boundary value of division
+			leftVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)-1];
+		}
 		if((avs.a[i].curDiv)+1<11)
-			thisVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)+1];
-		diff = otherVal-thisVal;
-		diffCur = otherVal - m.data[i];
-		perOther = diffCur/diff;
-		finalMapOutput[i] = (perOther)*m.finalData + (1-perOther)*m.finalData;
+		{
+			// find right boundary value of division
+			rightVal = avs.a[i].rangeDivision[(avs.a[i].curDiv)+1];
+		}
+		// difference between  and right division values for denominator
+		diff = leftVal-rightVal;
+		// difference between  and right division values for numerator
+		diffCur = leftVal - m.data[i];
+		// find what fraction the left value should be multiplied with
+		// based on the distance from it's boundary
+		perLeft = diffCur/diff;
+		// final = leftfraction * actual value + rightfraction * actual value
+		finalMapOutput[i] = (perLeft)*m.finalData + (1-perLeft)*m.finalData;
 	}
+	// average out all the interpolation data...
 	for(int i=0 ; i<m.dimensions ; i++)
 		fullOutput += finalMapOutput[i];
 	return fullOutput/m.dimensions;
