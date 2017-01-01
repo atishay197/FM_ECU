@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
-#include "arrayDivision.h"
 
+FILE* outp = fopen("arrayDivider.csv","w");
 # define SLIP_LOGRITHMIC_SCALE 12
 # define DIVISIONS 10
 float tpsRange[2] = {0,100};
@@ -95,9 +95,34 @@ struct arrayDivider createPolynomialDivision(struct arrayDivider a, float polyno
 	return a;
 }
 
+void writeToFile(arrayDivider a)
+{
+	for(int i=0 ; i<DIVISIONS ; i++)
+	{
+		fprintf(outp,a.rangeDivision[i]);
+		fprintf(outp,",");
+	}
+	fprintf(outp,"\n");
+}
 
 int main()
 {
+	// Initialize all array dividers...
+	arrayDivider tps = arrayDivider(DIVISIONS,tpsRange);
+	arrayDivider slip = arrayDivider(DIVISIONS,slipRange);
+	arrayDivider wheelLoad = arrayDivider(DIVISIONS,wheelLoadRange);
+	arrayDivider radius = arrayDivider(DIVISIONS,radiusRange);
+	arrayDivider wheelSpeed = arrayDivider(DIVISIONS,wheelSpeedRange);
 
+	// Create array divider divisions and write them to file
+	tps = createLinearDivision(tps);
+	slip = createLogrithmicDivision(slip);
+	wheelLoad = createLinearDivision(wheelLoad);
+	radius = createLinearDivision(radius);
+	wheelSpeed = createLinearDivision(wheelSpeed);
+
+	writeToFile(tps);
+
+	fclose(outp);
 }
 
