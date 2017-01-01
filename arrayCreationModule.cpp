@@ -9,6 +9,25 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
+struct arrayDivider
+{	
+	int divisions;
+	int curDiv;
+	float range[2];
+	float rangeDivision[11];
+	arrayDivider(int divisions,float range[2])
+	{
+		this->divisions = divisions;
+		this->range[0] = range[0];
+		this->range[1] = range[1];
+	}
+	arrayDivider()
+	{
+		this->divisions = 0;
+		this->range[0] = 0;
+		this->range[1] = 0;
+	}
+};
 
 struct arrayDivider createLinearDivision(struct arrayDivider a)
 {
@@ -81,3 +100,4 @@ int main()
 {
 
 }
+

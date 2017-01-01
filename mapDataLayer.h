@@ -11,8 +11,7 @@ float radiusRange[2] = {0,FLT_MAX};
 float wheelSpeedRange[2] = {0,150};
 
 struct arrayDivider
-{
-	
+{	
 	int divisions;
 	int curDiv;
 	float range[2];
@@ -249,6 +248,8 @@ arrayDivider getWheelSpeedDivision(float wheelSpeed, arrayDivider speed)
 
 mapData getDataFromOuterWheelMap(mapFetcherStruct m)
 {
+	// comments in the next function...
+	// This is redundancy, this will be changed somehow...
 	int divisions[6][5],i,j;
 	for(j=0 ; j<m.dimensions ; j++)
 		divisions[0][j] = m.divisions[j];
