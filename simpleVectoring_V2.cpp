@@ -5,6 +5,8 @@ FILE* file = fopen("Sample.csv","r");
 FILE* fcar = fopen("CarData.csv","r");
 FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
+FILE* arrayDivisionFile = fopen("arrayDivider.csv","r");
+
 
 #include "dataLoggingStructures.h"
 #include "outputTorque.h"
@@ -12,6 +14,13 @@ FILE* wout = fopen("wheel.csv","w");
 #include "carData.h"
 #include "clustering.h"
 #include "torqueVectoring.h"
+
+arrayDivider tpsAD;
+arrayDivider slipAD;
+arrayDivider wheelLoadAD;
+arrayDivider radiusAD;
+arrayDivider wheelSpeedAD;
+
 #include "arrayDivisionFetcher.h"
 
 
@@ -79,9 +88,14 @@ int main()
     fprintf(wout,"FL,FR,RL,RR\n");
     // initiate timer
 	double timer = 0;
-    // initialize array divider to read divisions for map from file
+    // Initialize all array dividers - tps,slip,load,speed,radius
+    initializeAllArrayDivider();
     struct arrayDivider sensorDivisions[5];
-    // arrayDivider[0] = 
+    sensorDivisions[0] = tpsAD;
+    sensorDivisions[1] = slipAD;
+    sensorDivisions[2] = wheelLoadAD;
+    sensorDivisions[3] = radiusAD;
+    sensorDivisions[4] = wheelSpeedAD;
     // TO DO remove in finla code read from sensors directly
     // buffer to read each line in CSV
 	char buffer[10000];

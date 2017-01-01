@@ -10,6 +10,7 @@ outputTorque* torqueVectoring(loggedData* prevData, loggedData* data, struct Car
 	int mode;
 	// Calculate wheel load for current sensor data
 	wheelLoad* wLoad = calculateWheelLoad(prevData,data,cData,elapsed);
+
 	// write wheel load to file
 	writeWheelLoad(wLoad,wout);
 	// mode determination

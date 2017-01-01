@@ -7,7 +7,7 @@
 float tpsRange[2] = {0,100};
 float slipRange[2] = {-5,5};
 float wheelLoadRange[2] = {0,150};
-float radiusRange[2] = {0,FLT_MAX};
+float radiusRange[2] = {0,200};
 float wheelSpeedRange[2] = {0,150};
 
 struct arrayDivider

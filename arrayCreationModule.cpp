@@ -1,33 +1,14 @@
 #include <bits/stdc++.h>
+#include "mapDataLayer.h"
+FILE* arrayDivisionFile = fopen("arrayDivider.csv","w");
 
-FILE* outp = fopen("arrayDivider.csv","w");
-# define SLIP_LOGRITHMIC_SCALE 12
-# define DIVISIONS 10
-float tpsRange[2] = {0,100};
-float slipRange[2] = {-5,5};
-float wheelLoadRange[2] = {0,150};
-float radiusRange[2] = {0,FLT_MAX};
-float wheelSpeedRange[2] = {0,150};
+arrayDivider tpsAD;
+arrayDivider slipAD;
+arrayDivider wheelLoadAD;
+arrayDivider radiusAD;
+arrayDivider wheelSpeedAD;
 
-struct arrayDivider
-{	
-	int divisions;
-	int curDiv;
-	float range[2];
-	float rangeDivision[11];
-	arrayDivider(int divisions,float range[2])
-	{
-		this->divisions = divisions;
-		this->range[0] = range[0];
-		this->range[1] = range[1];
-	}
-	arrayDivider()
-	{
-		this->divisions = 0;
-		this->range[0] = 0;
-		this->range[1] = 0;
-	}
-};
+#include "arrayDivisionFetcher.h"
 
 struct arrayDivider createLinearDivision(struct arrayDivider a)
 {
@@ -47,7 +28,7 @@ struct arrayDivider createLinearDivision(struct arrayDivider a)
 struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase)
 {
 	float x;int i;
-	float max = ((-1*log(-1*(0.49-1))))/log(logBase);
+	float max = ((-1*log(-1*(0.45-1))))/log(logBase);
 	float multiplier = a.range[1]/max;
 	int midDiv = DIVISIONS/2;
 	for(i=midDiv,x = 0 ; x < 0.5,i<DIVISIONS ; x+=0.01,i++)
@@ -56,8 +37,8 @@ struct arrayDivider createLogrithmicDivision(struct arrayDivider a,float logBase
 	}
 	for(i=0 ; i<midDiv ; i++)
 		a.rangeDivision[midDiv-i] = -1*a.rangeDivision[midDiv+i];
-	a.rangeDivision[DIVISIONS] = FLT_MAX;
-	a.rangeDivision[0] = -1*FLT_MAX;
+	a.rangeDivision[DIVISIONS] = a.range[1];
+	a.rangeDivision[0] = a.range[0];
 	// for(i=0 ; i<DIVISIONS ; i++)
 	// 	printf("%f\n",a.rangeDivision[i]);
 	return a;
@@ -99,30 +80,48 @@ void writeToFile(arrayDivider a)
 {
 	for(int i=0 ; i<DIVISIONS ; i++)
 	{
-		fprintf(outp,a.rangeDivision[i]);
-		fprintf(outp,",");
+		char array[100];
+		sprintf(array, "%f", a.rangeDivision[i]);
+		fprintf(arrayDivisionFile,array);
+		if(i != DIVISIONS-1)
+			fprintf(arrayDivisionFile,",");
 	}
-	fprintf(outp,"\n");
+	fprintf(arrayDivisionFile,"\n");
 }
 
 int main()
 {
 	// Initialize all array dividers...
-	arrayDivider tps = arrayDivider(DIVISIONS,tpsRange);
-	arrayDivider slip = arrayDivider(DIVISIONS,slipRange);
-	arrayDivider wheelLoad = arrayDivider(DIVISIONS,wheelLoadRange);
-	arrayDivider radius = arrayDivider(DIVISIONS,radiusRange);
-	arrayDivider wheelSpeed = arrayDivider(DIVISIONS,wheelSpeedRange);
+	tpsAD = arrayDivider(DIVISIONS,tpsRange);
+	slipAD = arrayDivider(DIVISIONS,slipRange);
+	wheelLoadAD = arrayDivider(DIVISIONS,wheelLoadRange);
+	radiusAD = arrayDivider(DIVISIONS,radiusRange);
+	wheelSpeedAD = arrayDivider(DIVISIONS,wheelSpeedRange);
 
 	// Create array divider divisions and write them to file
-	tps = createLinearDivision(tps);
-	slip = createLogrithmicDivision(slip);
-	wheelLoad = createLinearDivision(wheelLoad);
-	radius = createLinearDivision(radius);
-	wheelSpeed = createLinearDivision(wheelSpeed);
+	tpsAD = createLinearDivision(tpsAD);
+	slipAD = createLogrithmicDivision(slipAD,SLIP_LOGRITHMIC_SCALE);
+	wheelLoadAD = createLinearDivision(wheelLoadAD);
+	radiusAD = createLinearDivision(radiusAD);
+	wheelSpeedAD = createLinearDivision(wheelSpeedAD);
 
-	writeToFile(tps);
+	writeToFile(tpsAD);
+	writeToFile(slipAD);
+	writeToFile(wheelLoadAD);
+	writeToFile(radiusAD);
+	writeToFile(wheelSpeedAD);
 
-	fclose(outp);
+
+	arrayDivider b = arrayDividerReader(tpsAD,0);
+	for(int i=0 ; i<=DIVISIONS ; i++)
+		printf("%f ",b.rangeDivision[i]);
+	printf("\n");
+
+	b = arrayDividerReader(slipAD,1);
+	for(int i=0 ; i<=DIVISIONS ; i++)
+		printf("%f ",b.rangeDivision[i]);
+	printf("\n");
+
+	fclose(arrayDivisionFile);
 }
 
