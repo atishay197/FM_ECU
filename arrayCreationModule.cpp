@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 #include "mapDataLayer.h"
-FILE* arrayDivisionFile = fopen("arrayDivider.csv","w");
+FILE* arrayDivisionFile = fopen("arrayDivider.csv","w");	
 
 arrayDivider tpsAD;
 arrayDivider slipAD;
