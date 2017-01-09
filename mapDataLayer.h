@@ -3,6 +3,7 @@
 // Everything has 10 divisions now :(
 # define SLIP_LOGRITHMIC_SCALE 12
 # define DIVISIONS 10
+
 // Ranges for sensor values for division detection from map
 float tpsRange[2] = {0,100};
 float slipRange[2] = {-5,5};
@@ -10,13 +11,15 @@ float wheelLoadRange[2] = {0,150};
 float radiusRange[2] = {0,200};
 float wheelSpeedRange[2] = {0,150};
 
+
+//This structure is to just get the number of divisions and the ranges. 
 struct arrayDivider
 {	
 	int divisions;
 	int curDiv;
 	float range[2];
 	float rangeDivision[11];
-	arrayDivider(int divisions,float range[2])
+	arrayDivider(int divisions,float range[2])			//Called in initializeAllArrayDividers to get the initialized arrayDividers
 	{
 		this->divisions = divisions;
 		this->range[0] = range[0];
@@ -30,7 +33,7 @@ struct arrayDivider
 	}
 };
 
-
+//Function prototypes. These are used for arrayValuesStruct to get the 5 indices corresponding to the 5 parameters
 arrayDivider getTPSDivision(float,arrayDivider);
 arrayDivider getSlipDivision(float,arrayDivider);
 arrayDivider getWheelLoadDivision(float,arrayDivider);
@@ -46,7 +49,6 @@ float getFromMap(int dest[5])
 		val -= 0.1*dest[i];
 	return val;
 }
-
 
 struct mapData
 {
@@ -151,8 +153,10 @@ arrayDivider getTPSDivision(float TPS, arrayDivider tps)
 			return tps;
 		}
 	}
-	tps.curDiv = 0;
+	
+	tps.curDiv = 0;				
 	return tps;
+	
 	// arrayDivider tpsDiv = arrayDivider(TPS_DIVISIONS,tpsRange);
 	// FILE *polynomial_file  = fopen("polynomialTPS.txt", "r"); //open polynomialTPS file having editable weights
 	// float polynomial[10];

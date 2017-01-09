@@ -120,10 +120,17 @@ wheelLoad* calculateWheelLoadSusPot(loggedData* prevData, loggedData* data, carD
 	float B = cData->suspension.dampingCoeff;
 	float K = cData->suspension.springConstant;
 	float theta = (cData->suspension.pRodAngle)*3.1415/180;
-	w->FL = cos(theta) * ( ( B * ( (data->susPot.FL) - (prevData->susPot.FL) )/elapsed) + ( K * (data->susPot.FL) ) );
-	w->FR = cos(theta) * ( ( B * ( (data->susPot.FR) - (prevData->susPot.FR) )/elapsed) + ( K * (data->susPot.FR) ) );
-	w->RL = cos(theta) * ( ( B * ( (data->susPot.RL) - (prevData->susPot.RL) )/elapsed) + ( K * (data->susPot.RL) ) );
-	w->RR = cos(theta) * ( ( B * ( (data->susPot.RR) - (prevData->susPot.RR) )/elapsed) + ( K * (data->susPot.RR) ) );
+	
+	/* Commented as the term containing B is not relevant in steadystate
+	w->FL = cos(theta) * ( ( B * ( (data->susPot.FL) - (prevData->susPot.FL) ) / elapsed) + ( K * (data->susPot.FL) ) );
+	w->FR = cos(theta) * ( ( B * ( (data->susPot.FR) - (prevData->susPot.FR) ) / elapsed) + ( K * (data->susPot.FR) ) );
+	w->RL = cos(theta) * ( ( B * ( (data->susPot.RL) - (prevData->susPot.RL) ) / elapsed) + ( K * (data->susPot.RL) ) );
+	w->RR = cos(theta) * ( ( B * ( (data->susPot.RR) - (prevData->susPot.RR) ) / elapsed) + ( K * (data->susPot.RR) ) );
+	*/
+	w->FL = cos(theta) * ( K * (data->susPot.FL) );
+	w->FR = cos(theta) * ( K * (data->susPot.FR) );
+	w->RL = cos(theta) * ( K * (data->susPot.RL) );
+	w->RR = cos(theta) * ( K * (data->susPot.RR) );
 	//printWheelLoad(w);
 	return w;
 }

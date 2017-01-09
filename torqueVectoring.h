@@ -3,23 +3,28 @@
 outputTorque* torqueVectoring(loggedData* prevData, loggedData* data, struct CarData* cData, double elapsed,struct arrayDivider sensorDivisions[5])
 {
 	// TO DO Neural networks to be used here
-	// Assign steergin angles for case detemination
+	
+	// Assign steering angles for case detemination
 	float maxStraightAngle = 5; // Changed for testing purposes only
 	float minhairpinAngle = 20;
 
 	int mode;
+	
 	// Calculate wheel load for current sensor data
 	wheelLoad* wLoad = calculateWheelLoad(prevData,data,cData,elapsed);
 
 	// write wheel load to file
 	writeWheelLoad(wLoad,wout);
+	
 	// mode determination
 	if(abs(data->steeredAngle) < maxStraightAngle) mode = 1; 		//straight
 	else if(abs(data->steeredAngle) > minhairpinAngle) mode = 2;		//hairpin
 
 	outputTorque* output = (outputTorque*)malloc(sizeof(struct OutputTorque));
+	
 	// prevent slip gets data from map and calculates output torque
 	output = preventSlip(prevData,data,cData,elapsed,wLoad,sensorDivisions);
+	
 	// neural network and feedback need to be sent after the output torque has been output to the motor controll
 	// This feedback and logging mechanism will start running after output thus not hindering performance
 	// TO DO possibility of fork() operation for running this on a seperate thread
