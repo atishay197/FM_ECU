@@ -1,4 +1,5 @@
 #include "mapDataLayer.h"
+#include "batteryModule.h"
 // All calculative functions
 
 float decreaseBy(float value, float percentage)
@@ -252,7 +253,7 @@ outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData
 		// TO DO : Add a learner which keeps track of slip to modify MAP
 		// float fractionalMultiplier = 1 - group*0.1;
 		float fractionalMultiplier = 0.9;
-		printf("Slip\n");
+		//printf("Slip\n");
 		// fractionalMultiplier = sendToLearner(Rslip,Lslip);
 		output = getDataFromTorqueMap(data,wLoad,cData->wheelbase,a);
 		output->RR *= fractionalMultiplier; 
@@ -261,5 +262,6 @@ outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData
 	else
 		output = getDataFromTorqueMap(data,wLoad,cData->wheelbase,a);
 	// calculateWheelLoad(prevData,data,cData,elapsed)
+	float batteryMultiplier = returnBatteryMultipler(data,cData);
 	return output;
 }

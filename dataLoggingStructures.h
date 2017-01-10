@@ -41,6 +41,8 @@ struct LoggedData
 	float steeredAngle;					// deg
 	struct Throttle throttle;			// %
 	struct Suspot susPot;				//mm
+	float batterySOC;
+	//TO-DO add current lap number and the data entries in sample.csv using a MATLAB script
 	
 	//Copy Constructor
 	LoggedData(LoggedData* prev)
@@ -56,6 +58,7 @@ struct LoggedData
 		this->steeredAngle = prev->steeredAngle;
 		this->throttle = prev->throttle;
 		this->susPot = prev->susPot;
+		this->batterySOC = prev->batterySOC;
 	}
 	
 	//Default Constructor
@@ -82,6 +85,7 @@ struct LoggedData
 		this->susPot.FR = 0.0;
 		this->susPot.RL = 0.0;
 		this->susPot.RR = 0.0;
+		this->batterySOC = 100.0;
 	}
 };
 typedef struct LoggedData loggedData;
@@ -97,5 +101,6 @@ void printData(loggedData* r)
 	printf("Gyro Yaw :: %f\n",r->gyroYawVelocity);
 	printf("Steered Angle :: %f\n",r->steeredAngle);
 	printf("Throttle :: TPS1 : %f :: TPS2 : %f\n",r->throttle.TPS1,r->throttle.TPS2);
+	printf("DamperTravel :: FR : %f :: FL : %f :: RR : %f :: RL : %f\n",r->susPot.FR,r->susPot.FL,r->susPot.RR,r->susPot.RL);
 	return;
 }

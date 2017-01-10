@@ -78,6 +78,8 @@ carData* readCarData()
 		cardata->suspension.dampingCoeff = atof(strtok(NULL, ","));
 		cardata->suspension.springConstant = atof(strtok(NULL, ","));
 		cardata->suspension.pRodAngle = atof(strtok(NULL, ","));
+		cardata->autoXLapTime = atof(strtok(NULL, ","));
+		cardata->eventLapNumber = atof(strtok(NULL, ","));
         fclose(fcar);
         return cardata;
     }
@@ -142,7 +144,7 @@ int main()
         
         // read logged data from sensors in case of real code
 		loggedData* currentData = readnextcsv(buffer);
-		// printData(currentData);
+		//printData(currentData);
         
         // called until current data exists, 
         // currentData->exists = false in case of data logging error

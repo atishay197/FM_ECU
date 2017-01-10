@@ -42,6 +42,8 @@ struct CarData
 	struct Camber camber;				// degrees
 	float frontDistribution;			// fraction : (%/100)
 	struct Suspension suspension;
+	float autoXLapTime;					//seconds
+	int eventLapNumber;					//dimensionless
 };
 typedef struct CarData carData;
 
