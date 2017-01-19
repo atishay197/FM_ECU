@@ -42,6 +42,7 @@ struct LoggedData
 	struct Throttle throttle;			// %
 	struct Suspot susPot;				//mm
 	float batterySOC;
+	int currentLapNumber;
 	//TO-DO add current lap number and the data entries in sample.csv using a MATLAB script
 	
 	//Copy Constructor
@@ -59,6 +60,7 @@ struct LoggedData
 		this->throttle = prev->throttle;
 		this->susPot = prev->susPot;
 		this->batterySOC = prev->batterySOC;
+		this->currentLapNumber = prev->currentLapNumber;
 	}
 	
 	//Default Constructor
@@ -86,6 +88,7 @@ struct LoggedData
 		this->susPot.RL = 0.0;
 		this->susPot.RR = 0.0;
 		this->batterySOC = 100.0;
+		this->currentLapNumber = 1;
 	}
 };
 typedef struct LoggedData loggedData;

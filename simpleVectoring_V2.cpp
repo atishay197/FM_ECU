@@ -51,6 +51,8 @@ loggedData* readnextcsv(char buffer[10000])
     prevdata->susPot.FR = atof(strtok(NULL, ","));
     prevdata->susPot.RL = atof(strtok(NULL, ","));
     prevdata->susPot.RR = atof(strtok(NULL, ","));
+    prevdata->batterySOC = atof(strtok(NULL, ","));
+    prevdata->currentLapNumber = atoi(strtok(NULL, ","));
     return prevdata;
 }
 

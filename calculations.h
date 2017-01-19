@@ -1,5 +1,6 @@
 #include "mapDataLayer.h"
 #include "batteryModule.h"
+#include "brakeModule.h"
 // All calculative functions
 
 float decreaseBy(float value, float percentage)
@@ -262,6 +263,7 @@ outputTorque* preventSlip(loggedData* prevData, loggedData* data, carData* cData
 	else
 		output = getDataFromTorqueMap(data,wLoad,cData->wheelbase,a);
 	// calculateWheelLoad(prevData,data,cData,elapsed)
-	float batteryMultiplier = returnBatteryMultipler(data,cData);
+	float batteryMultiplier = returnBatteryMultipler(data,cData,elapsed);
+	float brakeMultiplier = returnBrakeMultiplier(data, cData, elapsed);
 	return output;
 }
