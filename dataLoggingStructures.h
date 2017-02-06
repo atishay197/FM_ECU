@@ -43,7 +43,6 @@ struct LoggedData
 	struct Suspot susPot;				//mm
 	float batterySOC;
 	int currentLapNumber;
-	//TO-DO add current lap number and the data entries in sample.csv using a MATLAB script
 	
 	//Copy Constructor
 	LoggedData(LoggedData* prev)

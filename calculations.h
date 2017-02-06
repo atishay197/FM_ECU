@@ -137,6 +137,84 @@ wheelLoad* calculateWheelLoadSusPot(loggedData* prevData, loggedData* data, carD
 	return w;
 }
 
+//TO-DO Use this in calculateWheelLoads
+//TO-DO Can change this to incorporate all 4 wheels. Would be better when all four wheels are driven 
+//by individual motors
+float* modifyWeightages(wheelLoad* w[3], float modifiedWeightage[3])
+{
+	float averageWheelLoads[2] = {0.0, 0.0};		//One index for each of the rear wheels
+	
+	//Summation of wheelLoads using the three methods to calculate mean
+	for(int i = 0; i < 3; i++)						
+	{
+		averageWheelLoads[0] = 	averageWheelLoads[0] + w[i]->RL;
+		averageWheelLoads[1] = 	averageWheelLoads[1] + w[i]->RR;
+	}
+	//Mean calculation
+	for(int i = 0; i < 2; i++)						
+	{
+		averageWheelLoads[i] = averageWheelLoads[i] / 3;
+	}
+	
+	//Calculate absolute differences from the Means
+	float diffRL[3], diffRR[3];						
+	for(int i = 0; i < 3; i++)
+	{
+		diffRL[i] = abs(averageWheelLoads[0] - w[i]->RL)/averageWheelLoads[0];
+		diffRR[i] = abs(averageWheelLoads[1] - w[i]->RR)/averageWheelLoads[1];
+	}
+	
+	//To get a weight based on differences
+	float numerator = 0.0;
+	for(int i = 0; i < 3; i++)
+	{
+		numerator += (diffRL[i] + diffRR[i]);
+	}
+	for(int i = 0; i < 3; i++)
+	{
+		modifiedWeightage[i] = numerator / (diffRL[i] + diffRR[i]);
+	}
+	numerator = 0.0;
+	for(int i = 0; i < 3; i++)
+		numerator += modifiedWeightage[i];
+	for(int i = 0; i < 3; i++)
+	{
+		modifiedWeightage[i] /= numerator;
+	}
+	
+	int faults[2], k = 0; 				//Faults keeps the index where the value is out of range. k is just to know if there is 1+ faults
+	for(int i = 0; i < 3; i++)
+	{
+		if( ((modifiedWeightage[i] * w[i]->RL) < 0) || ((modifiedWeightage[i] * w[i]->RL) > 150) || ((modifiedWeightage[i] * w[i]->RL) < 0) || ((modifiedWeightage[i] * w[i]->RL) > 150) )
+		{
+			faults[k] = i;
+			k++;
+			for(int j = 0; j < 3; j++)
+			{
+				if (j != i)
+					modifiedWeightage[j] += (modifiedWeightage[i]/2);
+			}
+			modifiedWeightage[i] = 0;
+		} 
+	}
+	if (k > 1)
+	{
+		for(int i = 0; i < 3; i++)
+		{
+			if( i == faults[0] || i == faults[1] )
+			{	
+				modifiedWeightage[i] = 0;
+			}
+			else
+			{
+				modifiedWeightage[i] = 100.0;
+			}
+				
+		}
+	}	
+	return modifiedWeightage; 
+}
+
 wheelLoad* calculateWheelLoad(loggedData* prevData, loggedData* data, carData* cData, double elapsed)
 {
 	wheelLoad* w[3];	// wheelLoad from acceleration, SusPot, yaw
@@ -145,22 +223,31 @@ wheelLoad* calculateWheelLoad(loggedData* prevData, loggedData* data, carData* c
 	w[1] = calculateWheelLoadSusPot(prevData,data,cData,elapsed);
 	// This method will be deprecated until proper calculation are possible
 	w[2] = calculateWheelLoadYaw(data,cData);
+	
 	// TO DO : make weightage parameter modifiable
 	// sum should always be 100
-	// FILE *weightage_file  = fopen("weightage.txt", "r"); //open weightage_file having editable weights
+	//FILE *weightage_file  = fopen("weightage.txt", "r"); //open weightage_file having editable weights
 	float weightage[3] = {100,0,0};		// {Acceleration,Suspot,Yaw}
-	// fscanf(weightage_file, "%f %f %f", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
-	// fclose(weightage_file);
+	//float modifiedWeightage[3];
+	fscanf(weightageFile, "%f %f %f", &weightage[0], &weightage[1], &weightage[2]); //read and assign to weightages
+	//fclose(weightage_file);
+	
+	//TO-DO Remove this from the loop, 
+	//fprintf(weightageFile,"%f, %f, %f", weightage[0], weightage[1], weightage[2]);
+	
+	//Calculate sum of weightages
 	float weightSum = 0;
 	for(int i=0 ; i<3 ; i++)
 	{
 		weightSum += weightage[i];
 		//printf("%f, ", weightage[i]);
 	}
+	
 	// Check if weight != 100 and modify weightage in same ratio
 	if(weightSum != 100)
 		for(int i=0 ; i<3 ; i++)
 			weightage[i] /= weightSum/100;
+	
 	// Calculate weighted loads from three provided methods
 	return returnWeightedLoads(w,weightage);
 }

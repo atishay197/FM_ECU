@@ -7,6 +7,7 @@ FILE* fcar = fopen("CarData.csv","r");
 FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
 FILE* arrayDivisionFile = fopen("arrayDivider.csv","r");
+FILE* weightageFile  = fopen("weightage.txt", "r+");
 
 
 #include "dataLoggingStructures.h"
@@ -182,4 +183,5 @@ int main()
     fclose(file);
 	fclose(wout);
 	fclose(arrayDivisionFile);
+	fclose(weightageFile);
 }

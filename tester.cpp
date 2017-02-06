@@ -21,7 +21,8 @@ struct arrayDivider
 	}
 };
 
-struct mapFetcherStruct{
+struct mapFetcherStruct
+{
 	int divisions[5];
 	bool fetchLeftRight[5];
 	mapFetcherStruct (int divisions[5], float values[5], float leftRange[5],float rightRange[5])
