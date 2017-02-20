@@ -40,15 +40,56 @@ arrayDivider getWheelLoadDivision(float,arrayDivider);
 arrayDivider getTurningRadiusDivision(float,arrayDivider);
 arrayDivider getWheelSpeedDivision(float,arrayDivider);
 
-// TO DO file/array input
-// Fix her up, this function is really sad :(
-float getFromMap(int dest[5])
+//TO-DO Get the "value" for both the files using a different code using ftell.
+//TO-DO make sure that each 10x10 array has same number number of bytes
+//TO-DO Make a function that doesnt depend on the number of bytes in 10x10 array
+//So that arrays can have different number of bytes. 
+float getFromOuterMap(int dest[5], float map[10][10])
 {
-	float val = 80;
-	for(int i=0 ; i<5 ; i++)
-		val -= 0.1*dest[i];
-	return val;
+	int value = 571;		//This value is based on increments of file pointer
+							//found using ftell when reading and printing
+	fseek(outerWheelMap, (dest[0]*100 + dest[1]*10 + dest[2])*value, SEEK_SET);
+	int i = 0;
+	char buffer[1000];
+	while ( i < 10 )
+	{
+		fgets(buffer, 1000, outerWheelMap);
+		for(int j = 0; j < 10; j++)
+		{
+			if( j == 0)
+				map[i][j] = atof(strtok(buffer, ","));
+			else
+				map[i][j] = atof(strtok(NULL, ","));
+		}
+		i++;
+	}
+	return map[dest[3]][dest[4]];
 }
+
+float getFromInnerMap(int dest[5], float map[10][10])
+{
+	int value = 571;		//This value is based on increments of file pointer
+							//found using ftell when reading and printing
+	//printf("%d\n", dest[0]);
+	fseek(innerWheelMap, (dest[0]*100 + dest[1]*10 + dest[2])*value, SEEK_SET);
+	int i = 0;
+	char buffer[1000];
+	//printf("%s\n", buffer);
+	while ( i < 10 )
+	{
+		fgets(buffer, 1000, innerWheelMap);
+		for(int j = 0; j < 10; j++)
+		{
+			if( j == 0)
+				map[i][j] = atof(strtok(buffer, ","));
+			else
+				map[i][j] = atof(strtok(NULL, ","));
+		}
+		i++;
+	}
+	return map[dest[3]][dest[4]];
+}
+
 
 struct mapData
 {
@@ -271,11 +312,12 @@ mapData getDataFromOuterWheelMap(mapFetcherStruct m)
 			}
 		}
 	}
-	// TO DO replace get from map by respective Maps
-	float final = getFromMap(divisions[0]);
+	
+	float map[10][10];
+	float final = getFromOuterMap(divisions[0], map);
 	float data[5];
 	for(i=1 ; i<m.dimensions+1 ; i++)
-		data[i] = getFromMap(divisions[i]);
+		data[i] = getFromOuterMap(divisions[i], map);
 	return mapData(m.dimensions,data,final);
 }
 
@@ -309,11 +351,11 @@ mapData getDataFromInnerWheelMap(mapFetcherStruct m)
 			}
 		}
 	}
-	// TO DO replace get from map by respective Maps
-	float final = getFromMap(divisions[0]);
+	float map[10][10];
+	float final = getFromInnerMap(divisions[0], map);
 	float data[5];
 	for(i=1 ; i<m.dimensions+1 ; i++)
-		data[i-1] = getFromMap(divisions[i]);
+		data[i-1] = getFromInnerMap(divisions[i], map);
 	return mapData(m.dimensions,data,final);
 }
 

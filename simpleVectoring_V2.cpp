@@ -8,6 +8,9 @@ FILE* outp = fopen("outputTorque.csv","w");
 FILE* wout = fopen("wheel.csv","w");
 FILE* arrayDivisionFile = fopen("arrayDivider.csv","r");
 FILE* weightageFile  = fopen("weightage.txt", "r+");
+//TO-DO Use some other opening mode for the maps 
+FILE* outerWheelMap = fopen("OuterWheelTorqueMap.csv", "r");
+FILE* innerWheelMap = fopen("InnerWheelTorqueMap.csv", "r");
 
 
 #include "dataLoggingStructures.h"
@@ -93,7 +96,7 @@ carData* readCarData()
 int main()
 {
     // Write FL FR RL RR to output file : wheelLoad.csv for readbility
-    fprintf(wout,"FL,FR,RL,RR\n");
+    //fprintf(wout,"FL,FR,RL,RR\n");
     
     // initiate timer
     double timer = 0;
@@ -184,4 +187,6 @@ int main()
 	fclose(wout);
 	fclose(arrayDivisionFile);
 	fclose(weightageFile);
+	fclose(outerWheelMap);
+	fclose(innerWheelMap);
 }
